@@ -3,8 +3,8 @@ package Lexer;
 public enum Symbol {
 
 	EOF("eof"),
-	IDENT("Ident"),
-	NUMBER("Number"),
+	IDENT("ident"),
+	NUMBER("number"),
 	PROGRAM("program"),
 	BEGIN("begin"),
 	END("end"),
@@ -34,9 +34,9 @@ public enum Symbol {
 	ASSIGN(":="),
 	COMMA(","),
 	SEMICOLON(";"),
-        INTLITERAL("IntNumber"),
-        FLOATLITERAL("FloatNumber"),
-        STRINGLITERAL("StringLiteral");
+        INTLITERAL("intnumber"),
+        FLOATLITERAL("floatnumber"),
+        STRINGLITERAL("stringliteral");
 
 	Symbol(String name) {
 		this.name = name;

@@ -18,7 +18,9 @@ import Error.*;
 public class Lexer {
 
 	// apenas para verificacao lexica
-	public static final boolean DEBUGLEXER = true; 
+	public static final boolean DEBUGLEXER = true;
+        private boolean checkTokenPrint = true;
+        private boolean STRFLAG = false;
     
     public Lexer( char[] input, CompilerError error ) {
         this.input = input;
@@ -36,6 +38,7 @@ public class Lexer {
     // this code will be executed only once for each program execution
     static {
         keywordsTable = new Hashtable<String, Symbol>();
+        keywordsTable.put("program", Symbol.PROGRAM);
         keywordsTable.put( "begin", Symbol.BEGIN );
         keywordsTable.put( "end", Symbol.END );
         keywordsTable.put( "function", Symbol.FUNCTION );
@@ -52,9 +55,9 @@ public class Lexer {
         keywordsTable.put( "int", Symbol.INT );        
         keywordsTable.put( "void", Symbol.VOID );
         keywordsTable.put( "string", Symbol.STRING );        
-        keywordsTable.put( "IntNumber", Symbol.INTLITERAL );        
-        keywordsTable.put( "FloatNumber", Symbol.FLOATLITERAL );
-        keywordsTable.put( "StringLiteral", Symbol.STRINGLITERAL );
+        keywordsTable.put( "intnumber", Symbol.INTLITERAL );        
+        keywordsTable.put( "floatnumber", Symbol.FLOATLITERAL );
+        keywordsTable.put( "stringliteral", Symbol.STRINGLITERAL );
     }
     
     
@@ -62,7 +65,7 @@ public class Lexer {
         
         //tokens a serem ignorados
         while(input[tokenPos] == ' ' ||
-              input[tokenPos] == '\n' || input[tokenPos] == '\t' ){
+              input[tokenPos] == '\n' || input[tokenPos] == '\t' || input[tokenPos] == '\r'){
             if (input[tokenPos] == '\n'){
                 lineNumber++;
             }
@@ -76,7 +79,7 @@ public class Lexer {
         }
         
         //verificar se eh um comentario
-        if (input[tokenPos] == '/' && input[tokenPos+1] == '/'){
+        if (input[tokenPos] == '-' && input[tokenPos+1] == '-'){
             //enquanto nao houver quebra de linha ou fim do arquivo
             //ainda eh um comentario
             while(input[tokenPos] != '\n' && input[tokenPos] != '\0'){
@@ -116,17 +119,34 @@ public class Lexer {
         } else {
             //pode se tratar de letras
             //(se for) enquanto houverem letras
-            while (Character.isLetter(input[tokenPos])){
+            STRFLAG = false;
+            if(input[tokenPos] == '\"'){
+                STRFLAG = true;
+                tokenPos++;
+            }
+            while (Character.isLetter(input[tokenPos]) && !STRFLAG){
                 //concatena as letras em uma string
                 aux = aux.append(input[tokenPos]);
                 tokenPos++;
             }
             
+            while(input[tokenPos] != '\"' && input[tokenPos] != ';' && input[tokenPos] != '\0' && STRFLAG){
+                aux = aux.append(input[tokenPos]);
+                tokenPos++;
+            }
+            if(input[tokenPos] != '\"' && STRFLAG)
+                error.signal("Faltou fechar aspas");
+            if(STRFLAG)
+                tokenPos++;
+            
             //se realmente haviam letras
             if (aux.length() > 0){
                 Symbol temp;
                 //verifica se a palavra formada pelas letras eh uma palavra reservada
-                temp = keywordsTable.get(aux.toString());
+                if(STRFLAG)
+                    temp = keywordsTable.get(Symbol.STRINGLITERAL.toString());
+                else
+                    temp = keywordsTable.get(aux.toString().toLowerCase());
                 //se nao for
                 if (temp == null){ 
                     //entao se trata do nome de alguma variavel/funcao
@@ -156,7 +176,7 @@ public class Lexer {
                         token = Symbol.DIV;
                         break;
                     case '=':
-                        token = Symbol.ASSIGN;
+                        token = Symbol.EQUAL;
                         break;
                     case '<':
                         token = Symbol.LT;
@@ -188,7 +208,7 @@ public class Lexer {
                 tokenPos++;
             }
         }
-        if (DEBUGLEXER)
+        if (DEBUGLEXER && checkTokenPrint)
             System.out.println(token.toString());
         
         //indica onde eh o fim do token
@@ -232,6 +252,37 @@ public class Lexer {
     
     public char getCharValue() {
         return charValue;
+    }
+    
+    public Symbol checkNextToken(){
+        Symbol bkptoken = token;
+        String bkpstringValue = this.stringValue;
+        int bkpnumberValue = this.numberValue;
+        char bkpcharValue = this.charValue;
+        int bkptokenPos = this.tokenPos;
+        int bkplastTokenPos = this.lastTokenPos;
+        int bkplineNumber = this.lineNumber;
+        
+        Symbol returnToken;
+        
+        
+        this.checkTokenPrint = false;
+        this.nextToken();
+        this.checkTokenPrint = true;
+        returnToken = this.token;
+        
+        
+        
+        this.stringValue = bkpstringValue;
+        this.numberValue = bkpnumberValue;
+        this.charValue = bkpcharValue;
+        this.tokenPos = bkptokenPos;
+        this.lastTokenPos = bkplastTokenPos;
+        this.lineNumber = bkplineNumber;
+        this.token = bkptoken;
+        
+        return returnToken;
+                
     }
     // current token
     public Symbol token;

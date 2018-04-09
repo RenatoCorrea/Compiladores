@@ -32,10 +32,7 @@ public class Main {
                 throw new RuntimeException();
             }
                 
-            if ( numChRead != file.length() ) {
-                System.out.println("Read error");
-                throw new RuntimeException();
-            }
+           
             try {
               stream.close();
             } catch ( IOException e ) {
