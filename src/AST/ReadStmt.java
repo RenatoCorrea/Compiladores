@@ -10,17 +10,9 @@ package AST;
  * 
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
-public class VarType {
-    
-    public VarType( String type ){
-        this.type = type;
-    }
-    
-    public String getType(){ return this.type; }
-    
+public class ReadStmt extends Stmt{
+
     public void genC(){
-        System.out.print(this.type);
-    }
     
-    String type;
+    }
 }

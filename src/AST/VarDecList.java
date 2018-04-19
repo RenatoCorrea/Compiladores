@@ -17,6 +17,7 @@ public class VarDecList extends Decl{
     public void genC(){
         for(VarDecl declaracao:vd){
             declaracao.genC();
+            System.out.print("\n");
         }
     }
 }

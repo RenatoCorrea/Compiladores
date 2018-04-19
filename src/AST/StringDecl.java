@@ -28,6 +28,8 @@ public class StringDecl {
     }
     
     public void genC(){
-        System.out.println("String "+this.ident+" = "+this.str+";");
+        System.out.print("String ");
+        ident.genC();
+        System.out.print("=" + this.str + ";");
     }
 }

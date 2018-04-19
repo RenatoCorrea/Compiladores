@@ -28,17 +28,15 @@ public class Compiler {
                 
         lexer.nextToken();
         Program p = program();
+        p.genC();
         if (lexer.token != Symbol.EOF) 
             error.signal("nao chegou no fim do arq");
         
-        //while(lexer.token != Symbol.EOF){
-        //    lexer.nextToken();
-        //}
     }
 
     //Program ::= PROGRAM IDENT BEGIN PgmBody END
     //PgmBody ::= Decl FuncDeclarations
-    public void program(){
+    public Program program(){
         if (lexer.token != Symbol.PROGRAM)
                 error.signal("faltou Program");
         lexer.nextToken();
@@ -53,7 +51,7 @@ public class Compiler {
         lexer.nextToken();
 
         ArrayList<Decl> decl = decl();
-        FuncDeclaration fd = funcDeclarations();
+        FuncDeclarations fd = funcDeclarations();
 
         if (lexer.token != Symbol.END)
             error.signal("faltou end");
@@ -79,8 +77,11 @@ public class Compiler {
     //StringDeclList ::= StringDecl | StringDecl StringDeclList
     public StringDecList stringDecList(){
         ArrayList<StringDecl> sd = new ArrayList();
+        StringDecl tmp;
         do{
-            sd.add(stringdecl());
+            tmp = stringdecl();
+            if(tmp != null)
+                sd.add(tmp);
         }while(lexer.token == Symbol.STRING);
         
         return new StringDecList(sd);
@@ -114,125 +115,165 @@ public class Compiler {
     //VarDecList ::= VarDecl | VarDecl VarDecList
     public VarDecList varDecList(){
         ArrayList<VarDecl> vd = new ArrayList();
+        VarDecl tmp;
         do{
-            vd.add(vardecl());
+            tmp = vardecl();
+            if(tmp != null)
+                vd.add(tmp);
         }while(lexer.token == Symbol.INT || lexer.token == Symbol.FLOAT);
         
         return new VarDecList(vd);
     }
 	
-	//VarDecl ::= VarType IdList ‘;’ | empty
-	public VarDecl vardecl(){
-	    if(lexer.token == Symbol.INT || lexer.token == Symbol.FLOAT){
-	        VarType tipo = new VarType(lexer.getStringValue());
-                lexer.nextToken();
-	        ArrayList<Ident> idList = idList();
-	        if(lexer.token != Symbol.SEMICOLON)
-	           error.signal("ponto-e-virgula nao encontrado");
-	        lexer.nextToken();
-                return new VarDecl(tipo, idList);
-	    }
-	}
+    //VarDecl ::= VarType IdList ‘;’ | empty
+    public VarDecl vardecl(){
+        if(lexer.token == Symbol.INT || lexer.token == Symbol.FLOAT){
+            VarType tipo = new VarType(lexer.token.toString());
+            lexer.nextToken();
+            ArrayList<Ident> idList = idList();
+            if(lexer.token != Symbol.SEMICOLON)
+               error.signal("ponto-e-virgula nao encontrado");
+            lexer.nextToken();
+            return new VarDecl(tipo, idList);
+        }
+        return null;
+    }
 	
 	//IdList ::= IDENT | IDENT ‘,’ IdList
-	public ArrayList<Ident> idList(){
+    public ArrayList<Ident> idList(){
+        ArrayList<Ident> lista = new ArrayList();
         if(lexer.token != Symbol.IDENT)
             error.signal("Identificador nao encontrado");
         //salvar ID
+        lista.add(new Ident(lexer.getStringValue()));
         lexer.nextToken();
-        if(lexer.token == Symbol.COMMA){
+        while(lexer.token == Symbol.COMMA){
             lexer.nextToken();
-            idList();
+            if(lexer.token != Symbol.IDENT)
+                error.signal("Identificador nao encontrado");
+            //salvar ID
+            lista.add(new Ident(lexer.getStringValue()));
+            lexer.nextToken();
         }
+        return lista;
     }
     
     //ParamDeclList ::= ParamDecl | ParamDecl ‘,’ ParamDeclList
-    public void paramDecList(){
-        paramdecl();
-        if(lexer.token == Symbol.COMMA){
+    public ParamDecList paramDecList(){
+        ArrayList<ParamDecl> lista = new ArrayList();
+        lista.add(paramdecl());
+        while(lexer.token == Symbol.COMMA){
             lexer.nextToken();
-            paramDecList();            
+            lista.add(paramdecl());          
         }
+        return new ParamDecList(lista);
     }
     
     //ParamDecl ::= VarType IDENT
-    public void paramdecl(){
+    public ParamDecl paramdecl(){
         if(lexer.token != Symbol.FLOAT && lexer.token != Symbol.INT)
             error.signal("tipo invalido de variavel");
+        VarType tipo = new VarType(lexer.token.toString());
         lexer.nextToken();
         if(lexer.token != Symbol.IDENT)
             error.signal("Identificador invalido");
+        Ident ident = new Ident(lexer.getStringValue());
         lexer.nextToken();
+        
+        return new ParamDecl(tipo, ident);
     }
     
     
-    public void funcDeclarations(){
-        funcdecl();
-        if(lexer.token == Symbol.COMMA){
+    public FuncDeclarations funcDeclarations(){
+        ArrayList<FuncDecl> fdecl = new ArrayList();
+        FuncDecl tmp;
+        tmp = funcdecl();
+        if(tmp != null)
+            fdecl.add(tmp);
+        while(lexer.token == Symbol.COMMA){
             lexer.nextToken();
-            funcDeclarations();
+            tmp = funcdecl();
+            if(tmp != null)
+                fdecl.add(tmp);
         }
+        return new FuncDeclarations(fdecl);
     }
     
-    public void funcdecl(){
+    public FuncDecl funcdecl(){
         if(lexer.token == Symbol.FUNCTION){
             lexer.nextToken();
             if(lexer.token != Symbol.VOID && lexer.token != Symbol.INT && lexer.token != Symbol.FLOAT)
                 error.signal("tipo invalido");
+            VarType tipo = new VarType(lexer.token.toString());
             lexer.nextToken();
             if(lexer.token != Symbol.IDENT)
                 error.signal("identificador nao encontrado");
+            Ident ident = new Ident(lexer.getStringValue());
             lexer.nextToken();
             if(lexer.token != Symbol.LPAR)
                 error.signal("e necessario o uso de parenteses");
             lexer.nextToken();
-            if(lexer.token == Symbol.INT || lexer.token == Symbol.FLOAT)
-                paramDecList();
+            ParamDecList pdl = null;
+            if(lexer.token == Symbol.INT || lexer.token == Symbol.FLOAT){
+                pdl = paramDecList();
+            }
             if(lexer.token != Symbol.RPAR)
                 error.signal("e necessario fechar o parenteses");
             lexer.nextToken();
             if(lexer.token != Symbol.BEGIN)
                 error.signal("BEGIN nao encontrado");
             lexer.nextToken();
-            funcBody();
+            FuncBody fb = funcBody();
             if(lexer.token != Symbol.END)
                 error.signal("END nao encontrado");
             lexer.nextToken();
+            
+            return new FuncDecl(tipo, ident, pdl, fb);
         }
+        
+        return null;
     }
     
-    public void funcBody(){
-        decl();
-        stmtList();
+    public FuncBody funcBody(){
+        ArrayList<Decl> decl = decl();
+        StmtList stmt = stmtList();
+        
+        return new FuncBody(decl, stmt);
     }
     
-    public void stmtList(){
-        if(lexer.token == Symbol.IDENT || lexer.token == Symbol.READ || lexer.token == Symbol.WRITE ||
-           lexer.token == Symbol.RETURN || lexer.token == Symbol.IF || lexer.token == Symbol.FOR)
-            stmt();
-        if(lexer.token == Symbol.IDENT || lexer.token == Symbol.READ || lexer.token == Symbol.WRITE ||
-           lexer.token == Symbol.RETURN || lexer.token == Symbol.IF || lexer.token == Symbol.FOR)
-           stmtList();
+    public StmtList stmtList(){
+        ArrayList<Stmt> lista = new ArrayList();
+        Stmt tmp;
+        do{
+            tmp = stmt();
+            if(tmp != null)
+                lista.add(tmp);
+        }while(lexer.token == Symbol.IDENT || lexer.token == Symbol.READ || lexer.token == Symbol.WRITE ||
+           lexer.token == Symbol.RETURN || lexer.token == Symbol.IF || lexer.token == Symbol.FOR);
+        return new StmtList(lista);
     }
     
-    public void stmt(){
+    public Stmt stmt(){
+        Stmt var = null;
         if(lexer.token == Symbol.IDENT)
-            assignstmt();
+           var = assignstmt();
         else if(lexer.token == Symbol.READ)
-            readstmt();
+            var = readstmt();
         else if(lexer.token == Symbol.WRITE)
-            writestmt();
+            var = writestmt();
         else if(lexer.token == Symbol.RETURN)
-            returnstmt();
+            var = returnstmt();
         else if(lexer.token == Symbol.IF)
-            ifstmt();
+            var = ifstmt();
         else if(lexer.token == Symbol.FOR)
-            forstmt();
+            var = forstmt();
         else error.signal("STMT invalido");
+        
+        return var;
     }
     
     //AssignStmt ::= AssignExpr ';'
-    public void assignstmt(){
+    public AssignStmt assignstmt(){
         assignexpr();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("faltou ponto-e-virgula");
@@ -251,7 +292,7 @@ public class Compiler {
     }
     
     //ReadStmt ::= READ ‘(‘ IdList ‘);’
-    public void readstmt(){
+    public ReadStmt readstmt(){
         if(lexer.token != Symbol.READ)
             error.signal("identificador nao encontrado");
         lexer.nextToken();
@@ -268,7 +309,7 @@ public class Compiler {
     }
     
     //WriteStmt ::= WRITE ‘(‘ IdList ‘);’
-    public void writestmt(){
+    public WriteStmt writestmt(){
         if(lexer.token != Symbol.WRITE)
             error.signal("identificador nao encontrado");
         lexer.nextToken();
@@ -285,7 +326,7 @@ public class Compiler {
     }
     
     //ReturnStmt ::= RETURN expr ‘;’
-    public void returnstmt(){
+    public ReturnStmt returnstmt(){
         if(lexer.token != Symbol.RETURN)
             error.signal("RETURN necessario");
         lexer.nextToken();
@@ -296,7 +337,7 @@ public class Compiler {
     }
     
     //IfStmt ::= IF ( Cond ) THEN StmtList ElsePart ENDIF
-    public void ifstmt(){
+    public IfStmt ifstmt(){
         if(lexer.token != Symbol.IF)
             error.signal("IF errado");
         lexer.nextToken();
@@ -318,7 +359,7 @@ public class Compiler {
     }
     
     //ForStmt ::= FOR ({AssignExpr} ’;’ {Cond} ‘;’ {AssignExpr}) StmtList ENDFOR
-    public void forstmt(){
+    public ForStmt forstmt(){
         if(lexer.token != Symbol.FOR)
             error.signal("FOR errado");
         lexer.nextToken();

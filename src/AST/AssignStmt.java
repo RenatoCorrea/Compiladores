@@ -6,6 +6,13 @@
 
 package AST;
 
-public class FuncDeclaration {
+/**
+ * 
+ * @author Sammy Guergachi <sguergachi at gmail.com>
+ */
+public class AssignStmt extends Stmt{
 
+    public void genC(){
+    
+    }
 }

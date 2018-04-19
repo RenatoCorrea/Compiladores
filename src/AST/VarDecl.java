@@ -22,10 +22,14 @@ public class VarDecl {
     
     
     public void genC(){
-        System.out.print(this.tipo);
+        tipo.genC();
         for(int i = 0; i<(idList.size())-1; i++){
-            System.out.print(" "+idList.get(i)+",");
+            System.out.print(" ");
+            idList.get(i).genC();
+            System.out.print(",");
         }
-        System.out.println(" "+idList.get((idList.size())-1)+";");
+        System.out.print(" ");
+        idList.get((idList.size())-1).genC();
+        System.out.print(";");
     }
 }

@@ -22,6 +22,7 @@ public class StringDecList extends Decl{
     public void genC(){
         for(StringDecl declaracao:sd){
             declaracao.genC();
+            System.out.print("\n");
         }
     }
 }

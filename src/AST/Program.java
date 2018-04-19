@@ -15,5 +15,31 @@ import java.util.ArrayList;
 public class Program {
     Ident ident;
     ArrayList<Decl> decl;
-    //FuncDeclaration fd; //nao definido yet
+    FuncDeclarations fd;
+
+    public Program(Ident ident, ArrayList<Decl> decl, FuncDeclarations fd) {
+        this.ident = ident;
+        this.decl = decl;
+        this.fd = fd;
+    }
+
+    public Ident getIdent() {
+        return ident;
+    }
+
+    public ArrayList<Decl> getDecl() {
+        return decl;
+    }
+
+    public FuncDeclarations getFuncDeclaration() {
+        return fd;
+    }
+    
+    public void genC(){
+        System.out.print("#include<stdio.h>\n\n");
+        for(Decl d: decl)
+            d.genC();
+        fd.genC();
+        
+    }
 }

@@ -18,7 +18,7 @@ import Error.*;
 public class Lexer {
 
 	// apenas para verificacao lexica
-	public static final boolean DEBUGLEXER = true;
+	public static final boolean DEBUGLEXER = false;
         private boolean checkTokenPrint = true;
         private boolean STRFLAG = false;
     
@@ -143,8 +143,10 @@ public class Lexer {
             if (aux.length() > 0){
                 Symbol temp;
                 //verifica se a palavra formada pelas letras eh uma palavra reservada
-                if(STRFLAG)
+                if(STRFLAG){
                     temp = keywordsTable.get(Symbol.STRINGLITERAL.toString());
+                    stringValue = aux.toString();
+                }
                 else
                     temp = keywordsTable.get(aux.toString().toLowerCase());
                 //se nao for

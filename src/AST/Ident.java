@@ -19,7 +19,7 @@ public class Ident {
     public String getIdent() { return ident; }
     
     public void genC(){
-        System.out.println( "IDENT" + ident );
+        System.out.print( ident );
     }
     
     private String ident;
