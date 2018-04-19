@@ -10,6 +10,8 @@
 
 import Lexer.*;
 import Error.*;
+import AST.*;
+import java.util.ArrayList;
 
 public class Compiler {
 
@@ -25,7 +27,7 @@ public class Compiler {
         error.setLexer(lexer);
                 
         lexer.nextToken();
-        program();
+        Program p = program();
         if (lexer.token != Symbol.EOF) 
             error.signal("nao chegou no fim do arq");
         
@@ -37,113 +39,124 @@ public class Compiler {
     //Program ::= PROGRAM IDENT BEGIN PgmBody END
     //PgmBody ::= Decl FuncDeclarations
     public void program(){
-    		if (lexer.token != Symbol.PROGRAM)
-    			error.signal("faltou Program");
-    		lexer.nextToken();
-            
-            if(lexer.token != Symbol.IDENT)
-                error.signal("faltou Identificador");
-            //salvar o valor do IDENT?
-            lexer.nextToken();
-            
-            if(lexer.token != Symbol.BEGIN)
-                error.signal("faltou Begin");
-            lexer.nextToken();
-            
-            Decl();
-            FuncDeclarations();
+        if (lexer.token != Symbol.PROGRAM)
+                error.signal("faltou Program");
+        lexer.nextToken();
 
-    		if (lexer.token != Symbol.END)
-    			error.signal("faltou end");
-    		lexer.nextToken();
+        if(lexer.token != Symbol.IDENT)
+            error.signal("faltou Identificador");
+        Ident ident = new Ident(lexer.getStringValue());
+        lexer.nextToken();
+
+        if(lexer.token != Symbol.BEGIN)
+            error.signal("faltou Begin");
+        lexer.nextToken();
+
+        ArrayList<Decl> decl = decl();
+        FuncDeclaration fd = funcDeclarations();
+
+        if (lexer.token != Symbol.END)
+            error.signal("faltou end");
+        lexer.nextToken();
+        
+        return new Program(ident, decl, fd);
     }
     
     //Decl ::= StringDeclList | StringDeclList Decl |  VarDeclList | VarDeclList Decl | empty
-    public void Decl(){
-        if (lexer.token == Symbol.STRING){
-            StringDecList();
-            if(lexer.token == Symbol.STRING || lexer.token == Symbol.INT
-            || lexer.token == Symbol.FLOAT)
-                Decl();
-        }
-        else if (lexer.token == Symbol.INT || lexer.token == Symbol.FLOAT){
-            VarDecList();
-            if(lexer.token == Symbol.STRING || lexer.token == Symbol.INT
-            || lexer.token == Symbol.FLOAT)
-                Decl();
-        }
-        
+    public ArrayList<Decl> decl(){
+        ArrayList<Decl> decl = new ArrayList();
+        do{
+            if (lexer.token == Symbol.STRING){
+                decl.add(stringDecList());
+            }
+            else if (lexer.token == Symbol.INT || lexer.token == Symbol.FLOAT){
+                decl.add(varDecList());
+            }
+        }while(lexer.token == Symbol.STRING || lexer.token == Symbol.INT || lexer.token == Symbol.FLOAT);
+        return decl;
     }
     
     //StringDeclList ::= StringDecl | StringDecl StringDeclList
-    public void StringDecList(){
-        StringDecl();
-        if(lexer.token == Symbol.STRING)
-            StringDecList();
+    public StringDecList stringDecList(){
+        ArrayList<StringDecl> sd = new ArrayList();
+        do{
+            sd.add(stringdecl());
+        }while(lexer.token == Symbol.STRING);
+        
+        return new StringDecList(sd);
     }
     
     //StringDecl ::= STRING IDENT := STRINGLITERAL ‘;’ | empty
-    public void StringDecl(){
+    public StringDecl stringdecl(){
         if(lexer.token == Symbol.STRING){
             lexer.nextToken();
             if(lexer.token != Symbol.IDENT)
                 error.signal("Identificador nao encontrado");
+            Ident ident = new Ident(lexer.getStringValue());
             lexer.nextToken();
-            //salvar IDENT?
             if(lexer.token != Symbol.ASSIGN)
                 error.signal(" := nao encontrado");
             lexer.nextToken();
             if(lexer.token != Symbol.STRINGLITERAL)
                 error.signal("String nao encontrada");
-            //salvar o valor da string?
+            //Pode ser que tenha que copiar por metodo
+            String strLiteral = lexer.getStringValue();
             lexer.nextToken();
             if(lexer.token != Symbol.SEMICOLON)
                 error.signal("Ponto-e-virgula nao encontrado");
             lexer.nextToken();
+            
+            return new StringDecl(ident, strLiteral);
         }
+        return null;
     }
     
     //VarDecList ::= VarDecl | VarDecl VarDecList
-	public void VarDecList(){
- 		VarDecl();
- 		if(lexer.token == Symbol.INT || lexer.token == Symbol.FLOAT)
- 		     VarDecList();
-	}
+    public VarDecList varDecList(){
+        ArrayList<VarDecl> vd = new ArrayList();
+        do{
+            vd.add(vardecl());
+        }while(lexer.token == Symbol.INT || lexer.token == Symbol.FLOAT);
+        
+        return new VarDecList(vd);
+    }
 	
 	//VarDecl ::= VarType IdList ‘;’ | empty
-	public void VarDecl(){
+	public VarDecl vardecl(){
 	    if(lexer.token == Symbol.INT || lexer.token == Symbol.FLOAT){
-	        lexer.nextToken();
-	        IdList();
+	        VarType tipo = new VarType(lexer.getStringValue());
+                lexer.nextToken();
+	        ArrayList<Ident> idList = idList();
 	        if(lexer.token != Symbol.SEMICOLON)
 	           error.signal("ponto-e-virgula nao encontrado");
 	        lexer.nextToken();
+                return new VarDecl(tipo, idList);
 	    }
 	}
 	
 	//IdList ::= IDENT | IDENT ‘,’ IdList
-	public void IdList(){
+	public ArrayList<Ident> idList(){
         if(lexer.token != Symbol.IDENT)
             error.signal("Identificador nao encontrado");
         //salvar ID
         lexer.nextToken();
         if(lexer.token == Symbol.COMMA){
             lexer.nextToken();
-            IdList();
+            idList();
         }
     }
     
     //ParamDeclList ::= ParamDecl | ParamDecl ‘,’ ParamDeclList
-    public void ParamDecList(){
-        ParamDecl();
+    public void paramDecList(){
+        paramdecl();
         if(lexer.token == Symbol.COMMA){
             lexer.nextToken();
-            ParamDecList();            
+            paramDecList();            
         }
     }
     
     //ParamDecl ::= VarType IDENT
-    public void ParamDecl(){
+    public void paramdecl(){
         if(lexer.token != Symbol.FLOAT && lexer.token != Symbol.INT)
             error.signal("tipo invalido de variavel");
         lexer.nextToken();
@@ -153,15 +166,15 @@ public class Compiler {
     }
     
     
-    public void FuncDeclarations(){
-        FuncDecl();
+    public void funcDeclarations(){
+        funcdecl();
         if(lexer.token == Symbol.COMMA){
             lexer.nextToken();
-            FuncDeclarations();
+            funcDeclarations();
         }
     }
     
-    public void FuncDecl(){
+    public void funcdecl(){
         if(lexer.token == Symbol.FUNCTION){
             lexer.nextToken();
             if(lexer.token != Symbol.VOID && lexer.token != Symbol.INT && lexer.token != Symbol.FLOAT)
@@ -174,78 +187,78 @@ public class Compiler {
                 error.signal("e necessario o uso de parenteses");
             lexer.nextToken();
             if(lexer.token == Symbol.INT || lexer.token == Symbol.FLOAT)
-                ParamDecList();
+                paramDecList();
             if(lexer.token != Symbol.RPAR)
                 error.signal("e necessario fechar o parenteses");
             lexer.nextToken();
             if(lexer.token != Symbol.BEGIN)
                 error.signal("BEGIN nao encontrado");
             lexer.nextToken();
-            FuncBody();
+            funcBody();
             if(lexer.token != Symbol.END)
                 error.signal("END nao encontrado");
             lexer.nextToken();
         }
     }
     
-    public void FuncBody(){
-        Decl();
-        StmtList();
+    public void funcBody(){
+        decl();
+        stmtList();
     }
     
-    public void StmtList(){
+    public void stmtList(){
         if(lexer.token == Symbol.IDENT || lexer.token == Symbol.READ || lexer.token == Symbol.WRITE ||
            lexer.token == Symbol.RETURN || lexer.token == Symbol.IF || lexer.token == Symbol.FOR)
-            Stmt();
+            stmt();
         if(lexer.token == Symbol.IDENT || lexer.token == Symbol.READ || lexer.token == Symbol.WRITE ||
            lexer.token == Symbol.RETURN || lexer.token == Symbol.IF || lexer.token == Symbol.FOR)
-           StmtList();
+           stmtList();
     }
     
-    public void Stmt(){
+    public void stmt(){
         if(lexer.token == Symbol.IDENT)
-            AssignStmt();
+            assignstmt();
         else if(lexer.token == Symbol.READ)
-            ReadStmt();
+            readstmt();
         else if(lexer.token == Symbol.WRITE)
-            WriteStmt();
+            writestmt();
         else if(lexer.token == Symbol.RETURN)
-            ReturnStmt();
+            returnstmt();
         else if(lexer.token == Symbol.IF)
-            IfStmt();
+            ifstmt();
         else if(lexer.token == Symbol.FOR)
-            ForStmt();
+            forstmt();
         else error.signal("STMT invalido");
     }
     
     //AssignStmt ::= AssignExpr ';'
-    public void AssignStmt(){
-        AssignExpr();
+    public void assignstmt(){
+        assignexpr();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("faltou ponto-e-virgula");
         lexer.nextToken();
     }
     
     //AssignExpr ::= IDENT := Expr
-    public void AssignExpr(){
+    public void assignexpr(){
         if(lexer.token != Symbol.IDENT)
             error.signal("identificador nao encontrado");
         lexer.nextToken();
         if(lexer.token != Symbol.ASSIGN)
             error.signal(":= necessario");
         lexer.nextToken();
-        Expr();
+        expr();
     }
     
     //ReadStmt ::= READ ‘(‘ IdList ‘);’
-    public void ReadStmt(){
+    public void readstmt(){
         if(lexer.token != Symbol.READ)
             error.signal("identificador nao encontrado");
         lexer.nextToken();
         if(lexer.token != Symbol.LPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
-        IdList();
+        idList();
         if(lexer.token != Symbol.RPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
@@ -255,14 +268,14 @@ public class Compiler {
     }
     
     //WriteStmt ::= WRITE ‘(‘ IdList ‘);’
-    public void WriteStmt(){
+    public void writestmt(){
         if(lexer.token != Symbol.WRITE)
             error.signal("identificador nao encontrado");
         lexer.nextToken();
         if(lexer.token != Symbol.LPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
-        IdList();
+        idList();
         if(lexer.token != Symbol.RPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
@@ -272,40 +285,40 @@ public class Compiler {
     }
     
     //ReturnStmt ::= RETURN expr ‘;’
-    public void ReturnStmt(){
+    public void returnstmt(){
         if(lexer.token != Symbol.RETURN)
             error.signal("RETURN necessario");
         lexer.nextToken();
-        Expr();
+        expr();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
     }
     
     //IfStmt ::= IF ( Cond ) THEN StmtList ElsePart ENDIF
-    public void IfStmt(){
+    public void ifstmt(){
         if(lexer.token != Symbol.IF)
             error.signal("IF errado");
         lexer.nextToken();
         if(lexer.token != Symbol.LPAR)
             error.signal("abertura de parenteses necessaria");
         lexer.nextToken();
-        Cond();
+        cond();
         if(lexer.token != Symbol.RPAR)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
         if(lexer.token != Symbol.THEN)
             error.signal("THEN necessario");
         lexer.nextToken();
-        StmtList();
-        ElsePart();
+        stmtList();
+        elsePart();
         if(lexer.token != Symbol.ENDIF)
             error.signal("ENDIF necessario");
         lexer.nextToken();
     }
     
     //ForStmt ::= FOR ({AssignExpr} ’;’ {Cond} ‘;’ {AssignExpr}) StmtList ENDFOR
-    public void ForStmt(){
+    public void forstmt(){
         if(lexer.token != Symbol.FOR)
             error.signal("FOR errado");
         lexer.nextToken();
@@ -313,88 +326,88 @@ public class Compiler {
             error.signal("abertura de parenteses necessaria");
         lexer.nextToken();
         if(lexer.token == Symbol.IDENT)
-            AssignExpr();
+            assignexpr();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("Ponto e virgula necessaria");
         lexer.nextToken();
         if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT)
-            Cond();
+            cond();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
         if(lexer.token == Symbol.IDENT)
-            AssignExpr();
+            assignexpr();
         if(lexer.token != Symbol.RPAR)
             error.signal("fechamento de parenteses necessario");
         lexer.nextToken();
-        StmtList();
+        stmtList();
         if(lexer.token != Symbol.ENDFOR)
             error.signal("ENDFOR necessario");
         lexer.nextToken();
     }
     
     //ElsePart ::= ELSE StmtList | empty
-    public void ElsePart(){
+    public void elsePart(){
         if(lexer.token == Symbol.ELSE){
             lexer.nextToken();
-            StmtList();
+            stmtList();
         }
     }
     
     //Cond ::= Expr Compop Expr
-    public void Cond(){
-        Expr();
-        Compop();
-        Expr();
+    public void cond(){
+        expr();
+        compop();
+        expr();
     }
     
     //Compop ::= < | > | =
-    public void Compop(){
+    public void compop(){
         if(lexer.token != Symbol.EQUAL && lexer.token != Symbol.LT && lexer.token != Symbol.GT)
             error.signal("erro no sinal");
             //adicionar ifs pra saber qual eh
         lexer.nextToken();
     }
     
-    public void Expr(){
-        Factor();
-        ExprTail();
+    public void expr(){
+        factor();
+        exprTail();
     }
     
-    public void ExprTail(){
+    public void exprTail(){
         if(lexer.token == Symbol.PLUS || lexer.token == Symbol.MINUS){
-            Addop();
-            Factor();
-            ExprTail();
+            addop();
+            factor();
+            exprTail();
         }
     }
     
-    public void Factor(){
-        PostfixExpr();
-        FactorTail();
+    public void factor(){
+        postfixexpr();
+        factorTail();
     }
     
-    public void FactorTail(){
+    public void factorTail(){
         if(lexer.token == Symbol.MULT || lexer.token == Symbol.DIV){
-            Mulop();
-            PostfixExpr();
-            FactorTail();
+            mulop();
+            postfixexpr();
+            factorTail();
         }
     }
     
-    public void PostfixExpr(){
+    public void postfixexpr(){
         if(lexer.token == Symbol.IDENT){
             if(lexer.checkNextToken() == Symbol.LPAR)
-                CallExpr();
+                callexpr();
             else
-                Primary();
+                primary();
         }
         else
-            Primary();
+            primary();
             
     }
     
-    public void CallExpr(){
+    public void callexpr(){
         if(lexer.token != Symbol.IDENT)
             error.signal("identificador não encontrado");
         lexer.nextToken();
@@ -402,26 +415,26 @@ public class Compiler {
             error.signal("abertura de parenteses necessária");
         lexer.nextToken();
         if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT)
-            ExprList();
+            exprList();
         if(lexer.token != Symbol.RPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
     }
     
-    public void ExprList(){
+    public void exprList(){
         if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT)
-            Expr();
+            expr();
         if(lexer.token == Symbol.COMMA){
             lexer.nextToken();
-            ExprList();
+            exprList();
         }
     }
     
     
-    public void Primary(){
+    public void primary(){
         if(lexer.token == Symbol.LPAR){
             lexer.nextToken();
-            Expr();
+            expr();
             if(lexer.token != Symbol.RPAR)
                 error.signal("parenteses não encontrado");
         }
@@ -434,13 +447,13 @@ public class Compiler {
             error.signal("Esperado (, identificador ou number");
     }
     
-    public void Addop(){
+    public void addop(){
         if(lexer.token != Symbol.PLUS && lexer.token != Symbol.MINUS)
             error.signal("+ ou - não encontrado");
         lexer.nextToken();
     }
     
-    public void Mulop(){
+    public void mulop(){
         if(lexer.token != Symbol.MULT && lexer.token != Symbol.DIV)
             error.signal("* ou / não encontrado");
         lexer.nextToken();
