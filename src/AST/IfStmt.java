@@ -11,7 +11,30 @@ package AST;
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
 public class IfStmt extends Stmt{
+    Cond cond;
+    StmtList stmtList;
+    ElsePart elsepart;
 
+    
+
+    public IfStmt(Cond cond, StmtList stmtList, ElsePart elsepart) {
+        this.cond = cond;
+        this.stmtList = stmtList;
+        this.elsepart = elsepart;
+    }
+    
+    public Cond getCond() {
+        return cond;
+    }
+
+    public StmtList getStmtList() {
+        return stmtList;
+    }
+
+    public ElsePart getElsepart() {
+        return elsepart;
+    }
+    
     public void genC(){
     
     }

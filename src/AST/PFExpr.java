@@ -10,19 +10,6 @@ package AST;
  * 
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
-public class ReturnStmt extends Stmt{
-    Expr expr;
-
-    public ReturnStmt(Expr expr) {
-        this.expr = expr;
-    }
-
-    public Expr getExpr() {
-        return expr;
-    }
-    
-    public void genC(){
-    
-    }
-
+abstract public class PFExpr {
+    abstract public void genC();
 }

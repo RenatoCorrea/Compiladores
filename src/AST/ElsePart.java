@@ -6,24 +6,18 @@
 
 package AST;
 
-import java.util.ArrayList;
-
 /**
  * 
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
-public class WriteStmt extends Stmt{
-    ArrayList<Ident> idlist;
+public class ElsePart {
+    StmtList stmtlist;
 
-    public WriteStmt(ArrayList<Ident> idlist) {
-        this.idlist = idlist;
+    public StmtList getStmtlist() {
+        return stmtlist;
     }
 
-    public ArrayList<Ident> getIdlist() {
-        return idlist;
-    }
-    
-    public void genC(){
-    
+    public ElsePart(StmtList stmtlist) {
+        this.stmtlist = stmtlist;
     }
 }

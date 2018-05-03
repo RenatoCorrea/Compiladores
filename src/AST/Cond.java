@@ -6,24 +6,19 @@
 
 package AST;
 
-import java.util.ArrayList;
-
 /**
  * 
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
-public class WriteStmt extends Stmt{
-    ArrayList<Ident> idlist;
+public class Cond {
+    Expr expr1, expr2;
+    ComPop compop;
 
-    public WriteStmt(ArrayList<Ident> idlist) {
-        this.idlist = idlist;
-    }
-
-    public ArrayList<Ident> getIdlist() {
-        return idlist;
+    public Cond(Expr expr1, Expr expr2, ComPop compop) {
+        this.expr1 = expr1;
+        this.expr2 = expr2;
+        this.compop = compop;
     }
     
-    public void genC(){
     
-    }
 }

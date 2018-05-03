@@ -3,13 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/Program.java</file>
-            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/VarDecl.java</file>
-            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/VarDecList.java</file>
-            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/FuncDeclaration.java</file>
-            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/Lexer/Lexer.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/MulOp.java</file>
             <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/Compiler.java</file>
-            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/VarType.java</file>
         </group>
     </open-files>
 </project-private>

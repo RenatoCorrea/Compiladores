@@ -11,7 +11,21 @@ package AST;
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
 public class AssignStmt extends Stmt{
+    
+    AssignExpr assignExpr;
 
+    public AssignStmt(AssignExpr assignExpr) {
+        this.assignExpr = assignExpr;
+    }
+    
+    public AssignExpr getAssignExpr() {
+        return assignExpr;
+    }
+
+    public void setAssignExpr(AssignExpr assignExpr) {
+        this.assignExpr = assignExpr;
+    }
+    
     public void genC(){
     
     }

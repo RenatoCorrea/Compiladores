@@ -6,12 +6,24 @@
 
 package AST;
 
+import java.util.ArrayList;
+
 /**
  * 
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
 public class ReadStmt extends Stmt{
+    ArrayList<Ident> idlist;
 
+    public ArrayList<Ident> getIdlist() {
+        return idlist;
+    }
+
+    public ReadStmt(ArrayList<Ident> idlist) {
+        this.idlist = idlist;
+    }
+
+    
     public void genC(){
     
     }

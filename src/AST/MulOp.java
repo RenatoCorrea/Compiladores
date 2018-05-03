@@ -6,24 +6,20 @@
 
 package AST;
 
-import java.util.ArrayList;
-
 /**
  * 
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
-public class WriteStmt extends Stmt{
-    ArrayList<Ident> idlist;
+public class MulOp {
+    String mulop;
 
-    public WriteStmt(ArrayList<Ident> idlist) {
-        this.idlist = idlist;
+    public MulOp(String mulop) {
+        this.mulop = mulop;
     }
 
-    public ArrayList<Ident> getIdlist() {
-        return idlist;
+    public String getMulop() {
+        return mulop;
     }
     
-    public void genC(){
     
-    }
 }

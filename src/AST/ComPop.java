@@ -6,24 +6,18 @@
 
 package AST;
 
-import java.util.ArrayList;
-
 /**
  * 
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
-public class WriteStmt extends Stmt{
-    ArrayList<Ident> idlist;
+public class ComPop {
+    String compop;
 
-    public WriteStmt(ArrayList<Ident> idlist) {
-        this.idlist = idlist;
+    public String getCompop() {
+        return compop;
     }
 
-    public ArrayList<Ident> getIdlist() {
-        return idlist;
-    }
-    
-    public void genC(){
-    
+    public ComPop(String compop) {
+        this.compop = compop;
     }
 }

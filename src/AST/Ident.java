@@ -10,7 +10,7 @@ package AST;
  * 
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
-public class Ident {
+public class Ident extends PrimaryAbstract{
     
     public Ident ( String ident ){
         this.ident = ident;

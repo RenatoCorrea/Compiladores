@@ -12,18 +12,11 @@ import java.util.ArrayList;
  * 
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
-public class WriteStmt extends Stmt{
-    ArrayList<Ident> idlist;
+public class ExprList {
+    ArrayList<Expr> exprlist;
 
-    public WriteStmt(ArrayList<Ident> idlist) {
-        this.idlist = idlist;
-    }
-
-    public ArrayList<Ident> getIdlist() {
-        return idlist;
+    public ExprList(ArrayList<Expr> exprlist) {
+        this.exprlist = exprlist;
     }
     
-    public void genC(){
-    
-    }
 }

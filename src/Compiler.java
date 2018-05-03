@@ -3,7 +3,7 @@
     Trabalho 1: Compilador Little
     
     Evelyn  RA:
-    Renato  RA:
+    Renato Vinícius Melaré Corrêa  RA: 620211
     William Adriano Alves   RA: 620203
     
 */
@@ -274,21 +274,24 @@ public class Compiler {
     
     //AssignStmt ::= AssignExpr ';'
     public AssignStmt assignstmt(){
-        assignexpr();
+        AssignExpr assignExpr = assignexpr();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("faltou ponto-e-virgula");
         lexer.nextToken();
+        return new AssignStmt(assignExpr);
     }
     
     //AssignExpr ::= IDENT := Expr
-    public void assignexpr(){
+    public AssignExpr assignexpr(){
         if(lexer.token != Symbol.IDENT)
             error.signal("identificador nao encontrado");
+        Ident id = new Ident(lexer.getStringValue());
         lexer.nextToken();
         if(lexer.token != Symbol.ASSIGN)
             error.signal(":= necessario");
         lexer.nextToken();
-        expr();
+        Expr expr = expr();
+        return new AssignExpr(id, expr);
     }
     
     //ReadStmt ::= READ ‘(‘ IdList ‘);’
@@ -299,13 +302,14 @@ public class Compiler {
         if(lexer.token != Symbol.LPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
-        idList();
+        ArrayList<Ident> idList = idList();
         if(lexer.token != Symbol.RPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
+        return new ReadStmt(idList);
     }
     
     //WriteStmt ::= WRITE ‘(‘ IdList ‘);’
@@ -316,13 +320,14 @@ public class Compiler {
         if(lexer.token != Symbol.LPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
-        idList();
+        ArrayList<Ident> idList = idList();
         if(lexer.token != Symbol.RPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
+        return new WriteStmt(idList);
     }
     
     //ReturnStmt ::= RETURN expr ‘;’
@@ -330,10 +335,11 @@ public class Compiler {
         if(lexer.token != Symbol.RETURN)
             error.signal("RETURN necessario");
         lexer.nextToken();
-        expr();
+        Expr expr = expr();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
+        return new ReturnStmt(expr);
     }
     
     //IfStmt ::= IF ( Cond ) THEN StmtList ElsePart ENDIF
@@ -344,22 +350,26 @@ public class Compiler {
         if(lexer.token != Symbol.LPAR)
             error.signal("abertura de parenteses necessaria");
         lexer.nextToken();
-        cond();
+        Cond cond = cond();
         if(lexer.token != Symbol.RPAR)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
         if(lexer.token != Symbol.THEN)
             error.signal("THEN necessario");
         lexer.nextToken();
-        stmtList();
-        elsePart();
+        StmtList stmtlist = stmtList();
+        ElsePart elsepart = elsePart();
         if(lexer.token != Symbol.ENDIF)
             error.signal("ENDIF necessario");
         lexer.nextToken();
+        return new IfStmt(cond, stmtlist, elsepart);
     }
     
     //ForStmt ::= FOR ({AssignExpr} ’;’ {Cond} ‘;’ {AssignExpr}) StmtList ENDFOR
     public ForStmt forstmt(){
+        AssignExpr assignexpr1 = null;
+        AssignExpr assignexpr2 = null;
+        Cond cond = null;
         if(lexer.token != Symbol.FOR)
             error.signal("FOR errado");
         lexer.nextToken();
@@ -367,137 +377,170 @@ public class Compiler {
             error.signal("abertura de parenteses necessaria");
         lexer.nextToken();
         if(lexer.token == Symbol.IDENT)
-            assignexpr();
+            assignexpr1 = assignexpr();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("Ponto e virgula necessaria");
         lexer.nextToken();
         if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT)
-            cond();
+            cond = cond();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
         if(lexer.token == Symbol.IDENT)
-            assignexpr();
+            assignexpr2 = assignexpr();
         if(lexer.token != Symbol.RPAR)
             error.signal("fechamento de parenteses necessario");
         lexer.nextToken();
-        stmtList();
+        StmtList stmtlist = stmtList();
         if(lexer.token != Symbol.ENDFOR)
             error.signal("ENDFOR necessario");
         lexer.nextToken();
+        return new ForStmt(assignexpr1, cond, assignexpr2, stmtlist);
     }
     
     //ElsePart ::= ELSE StmtList | empty
-    public void elsePart(){
+    public ElsePart elsePart(){
+        StmtList stmtlist = null;
         if(lexer.token == Symbol.ELSE){
             lexer.nextToken();
-            stmtList();
+            stmtlist = stmtList();
         }
+        return new ElsePart(stmtlist);
     }
     
     //Cond ::= Expr Compop Expr
-    public void cond(){
-        expr();
-        compop();
-        expr();
+    public Cond cond(){
+        Expr expr1 = expr();
+        ComPop compop = compop();
+        Expr expr2 = expr();
+        return new Cond(expr1, expr2, compop);
     }
     
     //Compop ::= < | > | =
-    public void compop(){
+    public ComPop compop(){
         if(lexer.token != Symbol.EQUAL && lexer.token != Symbol.LT && lexer.token != Symbol.GT)
             error.signal("erro no sinal");
             //adicionar ifs pra saber qual eh
+        String compop = "";
+        compop.concat(lexer.getStringValue());
         lexer.nextToken();
+        return new ComPop(compop);
     }
     
-    public void expr(){
-        factor();
-        exprTail();
+    public Expr expr(){
+        Factor factor = factor();
+        ExprTail exprtail = exprTail();
+        return new Expr(factor, exprtail);
     }
     
-    public void exprTail(){
+    public ExprTail exprTail(){
+        AddOp addop = null;
+        Factor factor = null;
+        ExprTail exprtail = null;
         if(lexer.token == Symbol.PLUS || lexer.token == Symbol.MINUS){
-            addop();
-            factor();
-            exprTail();
+            addop = addop();
+            factor = factor();
+            exprtail = exprTail();
         }
+        return new ExprTail(addop, factor, exprtail);
     }
     
-    public void factor(){
-        postfixexpr();
-        factorTail();
+    public Factor factor(){
+        PostFixExpr postfixexpr = postfixexpr();
+        FactorTail factortail = factorTail();
+        return new Factor(postfixexpr, factortail);
     }
     
-    public void factorTail(){
+    public FactorTail factorTail(){
+        MulOp mulop = null;
+        PostFixExpr postfixexpr = null;
+        FactorTail factortail = null;
         if(lexer.token == Symbol.MULT || lexer.token == Symbol.DIV){
-            mulop();
-            postfixexpr();
-            factorTail();
+            mulop = mulop();
+            postfixexpr = postfixexpr();
+            factortail = factorTail();
         }
+        return new FactorTail(mulop, postfixexpr, factortail);
     }
     
-    public void postfixexpr(){
+    public PostFixExpr postfixexpr(){
+        PFExpr postfixexpr = null;
         if(lexer.token == Symbol.IDENT){
             if(lexer.checkNextToken() == Symbol.LPAR)
-                callexpr();
+                postfixexpr = callexpr();
             else
-                primary();
+                postfixexpr = primary();
         }
         else
-            primary();
-            
+            postfixexpr = primary();
+        
+        return new PostFixExpr(postfixexpr);
     }
     
-    public void callexpr(){
+    public CallExpr callexpr(){
+        ExprList exprlist = null;
         if(lexer.token != Symbol.IDENT)
             error.signal("identificador não encontrado");
+        Ident id = new Ident(lexer.getStringValue());
         lexer.nextToken();
         if(lexer.token != Symbol.LPAR)
             error.signal("abertura de parenteses necessária");
         lexer.nextToken();
         if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT)
-            exprList();
+            exprlist = exprList();
         if(lexer.token != Symbol.RPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
+        return new CallExpr(id, exprlist);
     }
     
-    public void exprList(){
+    public ExprList exprList(){
+        ArrayList<Expr> exprlist = null;
         if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT)
-            expr();
-        if(lexer.token == Symbol.COMMA){
+            exprlist.add(expr());
+        while(lexer.token == Symbol.COMMA){
             lexer.nextToken();
-            exprList();
+            exprlist.add(expr());
         }
+        return new ExprList(exprlist);
     }
     
     
-    public void primary(){
+    public Primary primary(){
+        PrimaryAbstract primary = null;
         if(lexer.token == Symbol.LPAR){
             lexer.nextToken();
-            expr();
+            primary = expr();
             if(lexer.token != Symbol.RPAR)
                 error.signal("parenteses não encontrado");
         }
-        else if(lexer.token == Symbol.IDENT)
+        else if(lexer.token == Symbol.IDENT){
+            primary = new Ident(lexer.getStringValue());
             lexer.nextToken();
-       
-        else if(lexer.token == Symbol.NUMBER)
+        }
+        else if(lexer.token == Symbol.NUMBER){
+            primary = new IntLiteral("" + lexer.getNumberValue());
             lexer.nextToken();
+        }
         else
             error.signal("Esperado (, identificador ou number");
+        return new Primary(primary);
     }
     
-    public void addop(){
+    public AddOp addop(){
         if(lexer.token != Symbol.PLUS && lexer.token != Symbol.MINUS)
             error.signal("+ ou - não encontrado");
+        AddOp addop = new AddOp(lexer.getStringValue());
         lexer.nextToken();
+        return addop;
     }
     
-    public void mulop(){
+    public MulOp mulop(){
         if(lexer.token != Symbol.MULT && lexer.token != Symbol.DIV)
             error.signal("* ou / não encontrado");
+        MulOp mulop = new MulOp(lexer.getStringValue());
         lexer.nextToken();
+        return mulop;
     }
     
 }
