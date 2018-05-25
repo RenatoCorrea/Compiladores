@@ -27,9 +27,9 @@ public class StringDecl {
         return this.str;
     }
     
-    public void genC(){
-        System.out.print("String ");
-        ident.genC();
-        System.out.print("=" + this.str + ";");
+    public void genC( PW pw ){
+        pw.print("String ");
+        ident.genC(pw);
+        pw.out.println(" = \"" + this.str + "\";");
     }
 }

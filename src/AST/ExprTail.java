@@ -1,15 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package AST;
 
-/**
- * 
- * @author Sammy Guergachi <sguergachi at gmail.com>
- */
 public class ExprTail {
     AddOp addop;
     Factor factor;
@@ -33,5 +23,11 @@ public class ExprTail {
         return exprtail;
     }
     
+    public void genC ( PW pw ){
+        if(addop == null) return;
+        addop.genC(pw);
+        factor.genC(pw);
+        exprtail.genC(pw);
+    }
     
 }

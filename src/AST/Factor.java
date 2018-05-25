@@ -28,4 +28,9 @@ public class Factor {
     public FactorTail getFactortail() {
         return factortail;
     }
+    
+    public void genC( PW pw ){
+        postfixexpr.genC(pw);
+        factortail.genC(pw);
+    }
 }

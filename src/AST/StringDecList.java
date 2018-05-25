@@ -19,10 +19,9 @@ public class StringDecList extends Decl{
         return sd;
     }
        
-    public void genC(){
+    public void genC( PW pw ){
         for(StringDecl declaracao:sd){
-            declaracao.genC();
-            System.out.print("\n");
+            declaracao.genC(pw);
         }
     }
 }

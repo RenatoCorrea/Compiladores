@@ -18,8 +18,8 @@ public class VarType {
     
     public String getType(){ return this.type; }
     
-    public void genC(){
-        System.out.print(this.type);
+    public void genC( PW pw ){
+        pw.out.print(this.type);
     }
     
     String type;

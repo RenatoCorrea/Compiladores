@@ -18,8 +18,8 @@ public class IntLiteral extends PrimaryAbstract{
     }
     
     @Override
-    public void genC() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void genC(PW pw ) {
+        pw.out.print(intnumber);
     }
 
 }

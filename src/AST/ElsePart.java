@@ -20,4 +20,13 @@ public class ElsePart {
     public ElsePart(StmtList stmtlist) {
         this.stmtlist = stmtlist;
     }
+    
+    public void genC( PW pw ){
+        if(stmtlist == null) return;
+        pw.println("else{");
+        pw.add();
+        stmtlist.genC(pw);
+        pw.sub();
+        pw.println("}");
+    }
 }

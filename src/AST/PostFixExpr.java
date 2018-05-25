@@ -17,6 +17,8 @@ public class PostFixExpr extends PFExpr{
         this.pfexpr = pfexpr;
     }
     
-    public void genC(){}
+    public void genC( PW pw ){
+        pfexpr.genC(pw);
+    }
     
 }

@@ -7,5 +7,5 @@
 package AST;
 
 abstract public class Decl {
-    abstract public void genC();
+    abstract public void genC( PW pw );
 }

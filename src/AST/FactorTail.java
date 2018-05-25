@@ -33,4 +33,13 @@ public class FactorTail {
         return factortail;
     }
     
+    public void genC( PW pw ){
+        if(mulop == null) return;
+        pw.out.print(" ");
+        mulop.genC(pw);
+        pw.out.print(" ");
+        postfixexpr.genC(pw);
+        factortail.genC(pw);
+    }
+    
 }

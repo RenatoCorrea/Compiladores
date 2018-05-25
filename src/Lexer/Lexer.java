@@ -207,6 +207,7 @@ public class Lexer {
                     default:
                         error.signal("erro lexico");
                 }
+                stringValue = token.toString();
                 tokenPos++;
             }
         }

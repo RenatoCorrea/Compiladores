@@ -39,8 +39,18 @@ public class ForStmt extends Stmt{
     }
     
     
-    public void genC(){
-    
+    public void genC( PW pw ){
+        pw.print("for (");
+        assign1.genC(pw);
+        pw.out.print(", ");
+        cond.genC(pw);
+        pw.out.print(", ");
+        assign2.genC(pw);
+        pw.out.println("){");
+        pw.add();
+        stmtlist.genC(pw);
+        pw.sub();
+        pw.println("}");
     }
 
 }

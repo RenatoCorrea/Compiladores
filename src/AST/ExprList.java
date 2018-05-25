@@ -19,4 +19,12 @@ public class ExprList {
         this.exprlist = exprlist;
     }
     
+    public void genC( PW pw ){
+        for(int i = 0; i<(exprlist.size())-1; i++){
+            exprlist.get(i).genC(pw);
+            pw.out.print(", ");
+        }
+        exprlist.get(exprlist.size()-1).genC(pw);
+    }
+    
 }

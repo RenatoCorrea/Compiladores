@@ -35,8 +35,17 @@ public class IfStmt extends Stmt{
         return elsepart;
     }
     
-    public void genC(){
-    
+    public void genC( PW pw ){
+        pw.print("if( ");
+        cond.genC(pw);
+        pw.out.println(" ) {");
+        pw.add();
+        stmtList.genC(pw);
+        pw.sub();
+        pw.println("}");
+        if(elsepart != null){
+            elsepart.genC(pw);
+        }
     }
 
 }

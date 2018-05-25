@@ -11,5 +11,5 @@ package AST;
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
 abstract public class PFExpr {
-    abstract public void genC();
+    abstract public void genC( PW pw );
 }

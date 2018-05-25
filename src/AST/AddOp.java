@@ -21,5 +21,9 @@ public class AddOp {
         return addop;
     }
     
+    public void genC( PW pw ){
+        pw.out.print(" " + addop + " ");
+    }
+    
     
 }

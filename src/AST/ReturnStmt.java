@@ -21,8 +21,10 @@ public class ReturnStmt extends Stmt{
         return expr;
     }
     
-    public void genC(){
-    
+    public void genC( PW pw ){
+        pw.print("return ");
+        expr.genC(pw);
+        pw.out.print(";");
     }
 
 }

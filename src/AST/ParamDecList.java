@@ -13,12 +13,12 @@ public class ParamDecList {
         return pdl;
     }
     
-    public void genC(){
+    public void genC( PW pw ){
         for(int i = 0; i<(pdl.size())-1; i++){
-            pdl.get(i).genC();
-            System.out.print(", ");
+            pdl.get(i).genC(pw);
+            pw.out.print(", ");
         }
-        pdl.get(pdl.size()-1).genC();
+        pdl.get(pdl.size()-1).genC(pw);
     }
     
 }

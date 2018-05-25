@@ -13,7 +13,12 @@ public class StmtList{
         return lista;
     }
     
-    public void genC(){
+    public void genC( PW pw ){
+        //indeeeent
+        //end with println
+        for(Stmt stmt : lista){
+            stmt.genC(pw);
+        }
     }
     
 }

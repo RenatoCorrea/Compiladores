@@ -20,5 +20,13 @@ public class Cond {
         this.compop = compop;
     }
     
+    public void genC( PW pw ){
+        expr1.genC(pw);
+        pw.out.print(" ");
+        compop.genC(pw);
+        pw.out.print(" ");
+        expr2.genC(pw);
+    }
+    
     
 }

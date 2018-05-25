@@ -19,10 +19,10 @@ public class FuncBody {
         return stmt;
     }
     
-    public void genC(){
-        for(Decl declaracao:decl){
-            declaracao.genC();
+    public void genC( PW pw ){
+        for(Decl declaracao : decl){
+            declaracao.genC(pw);
         }
-        if(stmt != null) this.stmt.genC();
+        if(stmt != null) this.stmt.genC(pw);
     }
 }

@@ -14,10 +14,9 @@ public class VarDecList extends Decl{
     }
       
     
-    public void genC(){
+    public void genC( PW pw ){
         for(VarDecl declaracao:vd){
-            declaracao.genC();
-            System.out.print("\n");
+            declaracao.genC(pw);
         }
     }
 }

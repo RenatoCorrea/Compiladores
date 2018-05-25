@@ -21,15 +21,17 @@ public class VarDecl {
     }
     
     
-    public void genC(){
-        tipo.genC();
+    public void genC( PW pw ){
+        
+        pw.print("");
+        tipo.genC(pw);
         for(int i = 0; i<(idList.size())-1; i++){
-            System.out.print(" ");
-            idList.get(i).genC();
-            System.out.print(",");
+            pw.out.print(" ");
+            idList.get(i).genC(pw);
+            pw.out.print(",");
         }
-        System.out.print(" ");
-        idList.get((idList.size())-1).genC();
-        System.out.print(";");
+        pw.out.print(" ");
+        idList.get((idList.size())-1).genC(pw);
+        pw.out.println(";");
     }
 }

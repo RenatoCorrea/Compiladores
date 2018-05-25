@@ -35,11 +35,11 @@ public class Program {
         return fd;
     }
     
-    public void genC(){
-        System.out.print("#include<stdio.h>\n\n");
+    public void genC( PW pw ){
+        pw.print("#include<stdio.h>\n\n");
         for(Decl d: decl)
-            d.genC();
-        fd.genC();
+            d.genC(pw);
+        fd.genC(pw);
         
     }
 }

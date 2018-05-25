@@ -21,5 +21,9 @@ public class MulOp {
         return mulop;
     }
     
+    public void genC(PW pw){
+        pw.out.print(mulop);
+    }
+    
     
 }

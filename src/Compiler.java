@@ -28,7 +28,9 @@ public class Compiler {
                 
         lexer.nextToken();
         Program p = program();
-        p.genC();
+        PW pw = new PW();
+        pw.set(System.out);
+        p.genC(pw);
         if (lexer.token != Symbol.EOF) 
             error.signal("nao chegou no fim do arq");
         
@@ -267,7 +269,7 @@ public class Compiler {
             var = ifstmt();
         else if(lexer.token == Symbol.FOR)
             var = forstmt();
-        else error.signal("STMT invalido");
+        //else error.signal("STMT invalido");
         
         return var;
     }
@@ -421,8 +423,7 @@ public class Compiler {
         if(lexer.token != Symbol.EQUAL && lexer.token != Symbol.LT && lexer.token != Symbol.GT)
             error.signal("erro no sinal");
             //adicionar ifs pra saber qual eh
-        String compop = "";
-        compop.concat(lexer.getStringValue());
+        String compop = lexer.getStringValue();
         lexer.nextToken();
         return new ComPop(compop);
     }
@@ -495,7 +496,7 @@ public class Compiler {
     }
     
     public ExprList exprList(){
-        ArrayList<Expr> exprlist = null;
+        ArrayList<Expr> exprlist = new ArrayList();
         if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT)
             exprlist.add(expr());
         while(lexer.token == Symbol.COMMA){

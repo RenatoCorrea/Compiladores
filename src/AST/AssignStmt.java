@@ -26,7 +26,9 @@ public class AssignStmt extends Stmt{
         this.assignExpr = assignExpr;
     }
     
-    public void genC(){
-    
+    public void genC( PW pw ){
+        pw.print("");
+        assignExpr.genC(pw);
+        pw.out.println(";");
     }
 }

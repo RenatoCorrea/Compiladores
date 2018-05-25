@@ -24,7 +24,13 @@ public class ReadStmt extends Stmt{
     }
 
     
-    public void genC(){
-    
+    public void genC( PW pw ){
+        for(Ident id : idlist){
+            /*if ( id.getType() == Type.charType ) 
+              pw.print("{ char s[256]; gets(s); sscanf(s, \"%c\", &"  );
+            else // should only be an integer*/
+              pw.print("{ char s[256]; gets(s); sscanf(s, \"%d\", &"  );
+            pw.out.println(  id.getIdent() + "); }" );
+        }
     }
 }

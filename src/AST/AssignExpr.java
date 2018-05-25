@@ -27,4 +27,10 @@ public class AssignExpr {
     public Expr getExpr() {
         return expr;
     }
+    
+    public void genC(PW pw){
+        id.genC(pw);
+        pw.out.print(" = ");
+        expr.genC(pw);
+    }
 }

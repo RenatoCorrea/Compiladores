@@ -6,7 +6,7 @@ PROGRAM BigId BEGIN
 
     FUNCTION FLOAT exp(INT a, INT b) BEGIN -- Faz a ^ b
         INT i;
-        INT e; -- Como não da pra fazer “b+1” entro do for, eu coloquei no e
+        INT e; -- Como não da pra fazer “b+1” dentro do for, eu coloquei no e
         FLOAT total;
         -- Como isso é um comentario o compila tem que ignorar
         -- RETURN 0;

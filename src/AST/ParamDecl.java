@@ -17,10 +17,10 @@ public class ParamDecl {
         return ident;
     }
     
-    public void genC(){
-        tipo.genC();
-        System.out.print(" ");
-        ident.genC();
+    public void genC( PW pw ){
+        tipo.genC(pw);
+        pw.out.print(" ");
+        ident.genC(pw);
     }
     
 }

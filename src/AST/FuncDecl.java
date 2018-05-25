@@ -29,17 +29,21 @@ public class FuncDecl {
         return fb;
     }
         
-    public void genC(){
-    //VarType Ident '(' ParamDecList ')' {
-    //FuncBody
-    //}
-    tipo.genC();
-    System.out.print(" ");
-    ident.genC();
-    System.out.print(" (");
-    if(pdl != null) pdl.genC();
-    System.out.print(") {\n");
-    fb.genC();
-    System.out.print("}");
+    public void genC( PW pw ){
+        //VarType Ident '(' ParamDecList ')' {
+        //FuncBody
+        //}
+        pw.print("");
+        tipo.genC(pw);
+        pw.out.print(" ");
+        ident.genC(pw);
+        pw.out.print(" (");
+        if(pdl != null) pdl.genC(pw);
+        pw.out.println(") {");
+        pw.add();
+        fb.genC(pw);
+        pw.sub();
+        pw.out.println("");
+        pw.println("}");
     }
 }

@@ -18,8 +18,9 @@ public class Ident extends PrimaryAbstract{
     
     public String getIdent() { return ident; }
     
-    public void genC(){
-        System.out.print( ident );
+    
+    public void genC( PW pw ){
+        pw.out.print( ident );
     }
     
     private String ident;

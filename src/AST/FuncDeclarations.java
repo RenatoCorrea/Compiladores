@@ -13,11 +13,10 @@ public class FuncDeclarations {
         return fd;
     }
     
-    public void genC(){
-        if(fd.get(0) == null) return;
+    public void genC( PW pw ){
+        if(fd.isEmpty() || fd.get(0) == null) return;
         for(FuncDecl declaracao:fd){
-            declaracao.genC();
-            System.out.print("\n");
+            declaracao.genC(pw);
         }
     }
     

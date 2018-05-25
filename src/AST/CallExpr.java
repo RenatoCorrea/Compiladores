@@ -27,9 +27,11 @@ public class CallExpr extends PFExpr{
         return exprlist;
     }
     
-    @Override
-    public void genC() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void genC( PW pw) {
+        id.genC(pw);
+        pw.out.print("(");
+        exprlist.genC(pw);
+        pw.out.print(")");
     }
 
 }

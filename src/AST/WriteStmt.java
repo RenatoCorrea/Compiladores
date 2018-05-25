@@ -23,7 +23,21 @@ public class WriteStmt extends Stmt{
         return idlist;
     }
     
-    public void genC(){
-    
+    public void genC( PW pw ){
+        pw.print("printf(\"");
+        for(Ident id : idlist){
+            /*if ( id.getType() == Type.charType ) 
+                pw.print("%c, ");
+            else*/
+                pw.out.print("%d");
+        }
+        pw.out.print("\", ");
+        for(int i = 0; i<(idlist.size())-1; i++){
+            idlist.get(i).genC(pw);
+            pw.out.print(", ");
+        }
+        idlist.get(idlist.size()-1).genC(pw);
+        pw.out.println(");");
+
     }
 }

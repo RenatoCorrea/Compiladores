@@ -3,8 +3,18 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/MulOp.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/Program.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/AddOp.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/tests/test3.i</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/FuncDeclarations.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/FuncDecl.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/ParamDecList.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/WriteStmt.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/ExprList.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/Lexer/Lexer.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/CallExpr.java</file>
             <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/Compiler.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/ExprTail.java</file>
         </group>
     </open-files>
 </project-private>

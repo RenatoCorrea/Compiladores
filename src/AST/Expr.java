@@ -28,8 +28,9 @@ public class Expr extends PrimaryAbstract{
     }
 
     @Override
-    public void genC() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void genC( PW pw ) {
+        factor.genC(pw);
+        exprtail.genC(pw);
     }
     
 }

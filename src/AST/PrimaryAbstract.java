@@ -11,5 +11,5 @@ package AST;
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
 abstract public class PrimaryAbstract extends PFExpr{
-    
+    abstract public void genC(PW pw);
 }
