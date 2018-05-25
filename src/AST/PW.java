@@ -1,5 +1,7 @@
 package AST;
 
+import java.lang.System;
+
 import java.io.*;
 
 
@@ -12,7 +14,7 @@ public class PW {
       currentIndent -= step;
    }
    
-   public void set( PrintStream out ) {
+   public void set( PrintWriter out ) {
       this.out = out;
       currentIndent = 0;
    }
@@ -40,12 +42,12 @@ public class PW {
    */
    static public final int green = 0, java = 1;
    int mode = green; 
-   public int step = 4;
-   public PrintStream out;
+   public int step = 3;
+   public PrintWriter out;
          
    
-   static final private String space = "                                                                                                                ";
-
-    
+   static final private String space = "                                                                                                        ";
 
 }
+      
+       
