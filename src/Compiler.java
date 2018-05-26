@@ -54,6 +54,8 @@ public class Compiler {
         if(lexer.token != Symbol.IDENT)
             error.signal("faltou Identificador");
         Ident ident = new Ident(lexer.getStringValue());
+        //Analise Semantica
+        //verificar se o identificador ja consta na SymbolTable
         lexer.nextToken();
 
         if(lexer.token != Symbol.BEGIN)
@@ -114,6 +116,8 @@ public class Compiler {
             if(lexer.token != Symbol.IDENT)
                 error.signal("Identificador nao encontrado");
             Ident ident = new Ident(lexer.getStringValue());
+            //Analise Sintatica
+            //verifica na SymbolTable se ja ah variavel com esse nome
             lexer.nextToken();
             if(lexer.token != Symbol.ASSIGN)
                 error.signal(" := nao encontrado");
@@ -165,6 +169,8 @@ public class Compiler {
         if(lexer.token != Symbol.IDENT)
             error.signal("Identificador nao encontrado");
         //salvar ID
+        //Analise Sintatica
+        //Verificar se variaveis ja nao existem na SymbolTable
         lista.add(new Ident(lexer.getStringValue()));
         lexer.nextToken();
         while(lexer.token == Symbol.COMMA){
@@ -172,6 +178,7 @@ public class Compiler {
             if(lexer.token != Symbol.IDENT)
                 error.signal("Identificador nao encontrado");
             //salvar ID
+            //Analise sintatica
             lista.add(new Ident(lexer.getStringValue()));
             lexer.nextToken();
         }
@@ -196,8 +203,10 @@ public class Compiler {
         VarType tipo = new VarType(lexer.token.toString());
         lexer.nextToken();
         if(lexer.token != Symbol.IDENT)
-            error.signal("Identificador invalido");
+            error.signal("Identificador invalido");        
         Ident ident = new Ident(lexer.getStringValue());
+        //Analise Sintatica
+        //verificar se ident ja nao existe na SymbolTable
         lexer.nextToken();
         
         return new ParamDecl(tipo, ident);
@@ -228,6 +237,8 @@ public class Compiler {
             lexer.nextToken();
             if(lexer.token != Symbol.IDENT)
                 error.signal("identificador nao encontrado");
+            //Analise Sintatica
+            //verificar se ident ja nao existe na SymbolTable 
             Ident ident = new Ident(lexer.getStringValue());
             lexer.nextToken();
             if(lexer.token != Symbol.LPAR)
@@ -294,6 +305,9 @@ public class Compiler {
     
     //AssignStmt ::= AssignExpr ';'
     public AssignStmt assignstmt(){
+        //Tokien eh atualmente um IDENT
+        //Verifiacr em AssignExpr se ele consta na SymbolTable
+        //Erro se nao constar
         AssignExpr assignExpr = assignexpr();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("faltou ponto-e-virgula");
@@ -304,13 +318,19 @@ public class Compiler {
     //AssignExpr ::= IDENT := Expr
     public AssignExpr assignexpr(){
         if(lexer.token != Symbol.IDENT)
-            error.signal("identificador nao encontrado");
+            error.signal("identificador nao encontrado");        
         Ident id = new Ident(lexer.getStringValue());
+        //Analise Semantica
+        //Verifica existencia na SymbolTable
+        //Erro se nao existe
         lexer.nextToken();
         if(lexer.token != Symbol.ASSIGN)
             error.signal(":= necessario");
         lexer.nextToken();
         Expr expr = expr();
+        //Analise Semantica
+        //Verificar se o Tipo da variavel e da Expr sao iguais
+        //tipo: Int = Int ou String = String
         return new AssignExpr(id, expr);
     }
     
@@ -322,6 +342,9 @@ public class Compiler {
         if(lexer.token != Symbol.LPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
+        //Analise Semantica
+        //Verificar se existem na SymbolTable
+        //Erro se nao existem
         ArrayList<Ident> idList = idList();
         if(lexer.token != Symbol.RPAR)
             error.signal("parenteses nao encontrado");
@@ -340,6 +363,9 @@ public class Compiler {
         if(lexer.token != Symbol.LPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
+        //Analise semantica
+        //Verificar se existe na SymbolTable
+        //erro se nao
         ArrayList<Ident> idList = idList();
         if(lexer.token != Symbol.RPAR)
             error.signal("parenteses nao encontrado");
@@ -359,6 +385,9 @@ public class Compiler {
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
+        //Eu acho que deveria haver analise semantica aqui
+        //vendo se o tipo de retorno base com a da funcao
+        //mas nao sei como isso seria feito
         return new ReturnStmt(expr);
     }
     
@@ -370,6 +399,8 @@ public class Compiler {
         if(lexer.token != Symbol.LPAR)
             error.signal("abertura de parenteses necessaria");
         lexer.nextToken();
+        //Tem que fazer analise semantica da condicao
+        //mas nao existe tipo bool aqui
         Cond cond = cond();
         if(lexer.token != Symbol.RPAR)
             error.signal("ponto e virgula necessario");
@@ -397,16 +428,20 @@ public class Compiler {
             error.signal("abertura de parenteses necessaria");
         lexer.nextToken();
         if(lexer.token == Symbol.IDENT)
+            //Analise semantica feita dentro de AssignExpr
             assignexpr1 = assignexpr();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("Ponto e virgula necessaria");
         lexer.nextToken();
         if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT)
+            //Acho que dentro do Cond tem que fazer a semantica, conforme
+            //descrito no metodo de cima 
             cond = cond();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
         if(lexer.token == Symbol.IDENT)
+            //Analise Semantica dentro de AssignExpr
             assignexpr2 = assignexpr();
         if(lexer.token != Symbol.RPAR)
             error.signal("fechamento de parenteses necessario");
@@ -433,6 +468,9 @@ public class Compiler {
         Expr expr1 = expr();
         ComPop compop = compop();
         Expr expr2 = expr();
+        //Analise semantica
+        //verificar se tipos sao compativeis
+        //tipo: Int < Int, Float = Float 
         return new Cond(expr1, expr2, compop);
     }
     
@@ -461,6 +499,8 @@ public class Compiler {
             factor = factor();
             exprtail = exprTail();
         }
+        //Analise Semantica
+        //Verificar se tipos sao compativeis
         return new ExprTail(addop, factor, exprtail);
     }
     
@@ -479,12 +519,17 @@ public class Compiler {
             postfixexpr = postfixexpr();
             factortail = factorTail();
         }
+        //Analise Semantica
+        //Verificar Tipos
         return new FactorTail(mulop, postfixexpr, factortail);
     }
     
     public PostFixExpr postfixexpr(){
         PFExpr postfixexpr = null;
         if(lexer.token == Symbol.IDENT){
+            //Analise Semantica
+            //Verificar se existe na SymbolTable
+            //Erro se nao
             if(lexer.checkNextToken() == Symbol.LPAR)
                 postfixexpr = callexpr();
             else
@@ -501,11 +546,13 @@ public class Compiler {
         if(lexer.token != Symbol.IDENT)
             error.signal("identificador não encontrado");
         Ident id = new Ident(lexer.getStringValue());
+        //Analise Semantica
         lexer.nextToken();
         if(lexer.token != Symbol.LPAR)
             error.signal("abertura de parenteses necessária");
         lexer.nextToken();
         if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT)
+            //Analise Semantica para o IDENT
             exprlist = exprList();
         if(lexer.token != Symbol.RPAR)
             error.signal("parenteses nao encontrado");
@@ -516,6 +563,7 @@ public class Compiler {
     public ExprList exprList(){
         ArrayList<Expr> exprlist = new ArrayList();
         if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT)
+            //Analise Semantica para o IDENT 
             exprlist.add(expr());
         while(lexer.token == Symbol.COMMA){
             lexer.nextToken();
