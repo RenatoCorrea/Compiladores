@@ -1,6 +1,5 @@
 package AuxComp;
 
-
 import java.util.*;
 
 public class SymbolTable {
