@@ -56,6 +56,10 @@ public class Compiler {
         Ident ident = new Ident(lexer.getStringValue());
         //Analise Semantica
         //verificar se o identificador ja consta na SymbolTable
+        if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
+             error.show(ident.getIdent() + " ja foi declarado");
+        //se nao existe, adiciona
+        symbolTable.putInGlobal(ident.getIdent(), ident);    
         lexer.nextToken();
 
         if(lexer.token != Symbol.BEGIN)
@@ -75,8 +79,7 @@ public class Compiler {
         
         // Analise Semantica
         // Deve haver uma funcao Main
-        Object object;
-        if ( (object =  symbolTable.getInGlobal("main")) == null )
+        if (symbolTable.getInGlobal("main") == null )
           error.show("O codigo fonte deve ter uma funcao chamada main");
         
         return new Program(ident, decl, fd);
@@ -115,9 +118,13 @@ public class Compiler {
             lexer.nextToken();
             if(lexer.token != Symbol.IDENT)
                 error.signal("Identificador nao encontrado");
-            Ident ident = new Ident(lexer.getStringValue());
-            //Analise Sintatica
-            //verifica na SymbolTable se ja ah variavel com esse nome
+            	Ident ident = new Ident(lexer.getStringValue());
+                //Analise Semantica
+                //verificar se o identificador ja consta na SymbolTable
+                if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
+                     error.show(ident.getIdent() + " ja foi declarado");
+                //se nao existe, adiciona
+                symbolTable.putInGlobal(ident.getIdent(), new Variable(new VarType("String"), ident.getIdent()));  
             lexer.nextToken();
             if(lexer.token != Symbol.ASSIGN)
                 error.signal(" := nao encontrado");
@@ -154,7 +161,7 @@ public class Compiler {
         if(lexer.token == Symbol.INT || lexer.token == Symbol.FLOAT){
             VarType tipo = new VarType(lexer.token.toString());
             lexer.nextToken();
-            ArrayList<Ident> idList = idList();
+            ArrayList<Ident> idList = idList(tipo);
             if(lexer.token != Symbol.SEMICOLON)
                error.signal("ponto-e-virgula nao encontrado");
             lexer.nextToken();
@@ -163,22 +170,64 @@ public class Compiler {
         return null;
     }
 	
-	//IdList ::= IDENT | IDENT ‘,’ IdList
-    public ArrayList<Ident> idList(){
+    //IdList ::= IDENT | IDENT ‘,’ IdList
+    public ArrayList<Ident> idList(VarType tipo){
         ArrayList<Ident> lista = new ArrayList();
         if(lexer.token != Symbol.IDENT)
             error.signal("Identificador nao encontrado");
         //salvar ID
-        //Analise Sintatica
-        //Verificar se variaveis ja nao existem na SymbolTable
-        lista.add(new Ident(lexer.getStringValue()));
+        Ident ident = new Ident(lexer.getStringValue());
+        //Analise Semantica
+        //verificar se o identificador ja consta na SymbolTable
+        if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
+             error.show(ident.getIdent() + " ja foi declarado");
+        //se nao existe, adiciona
+        symbolTable.putInGlobal(ident.getIdent(), new Variable(tipo, ident.getIdent()));      
+        //adiciona IDENT na lista
+        lista.add(ident);
         lexer.nextToken();
         while(lexer.token == Symbol.COMMA){
             lexer.nextToken();
             if(lexer.token != Symbol.IDENT)
                 error.signal("Identificador nao encontrado");
             //salvar ID
-            //Analise sintatica
+            ident = new Ident(lexer.getStringValue());
+            //Analise Semantica
+            //verificar se o identificador ja consta na SymbolTable
+            if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
+                 error.show(ident.getIdent() + " ja foi declarado");
+            //se nao existe, adiciona
+            symbolTable.putInGlobal(ident.getIdent(), new Variable(tipo, ident.getIdent()));      
+            //adiciona IDENT na lista
+            lista.add(ident);
+            lexer.nextToken();
+        }
+        return lista;
+    }
+    
+    //IdList ::= IDENT | IDENT ‘,’ IdList
+    public ArrayList<Ident> idList(){
+        ArrayList<Ident> lista = new ArrayList();
+        if(lexer.token != Symbol.IDENT)
+            error.signal("Identificador nao encontrado");
+        Ident ident = new Ident(lexer.getStringValue());
+        //Analise Semantica
+        //verificar se o identificador consta na SymbolTable
+	//erro se nao
+        if ( symbolTable.getInGlobal(ident.getIdent()) == null ) 
+             error.show(ident.getIdent() + " nao foi declarado");
+        lista.add(new Ident(lexer.getStringValue()));
+        lexer.nextToken();
+        while(lexer.token == Symbol.COMMA){
+            lexer.nextToken();
+            if(lexer.token != Symbol.IDENT)
+                error.signal("Identificador nao encontrado");
+            ident = new Ident(lexer.getStringValue());
+            //Analise Semantica
+            //verificar se o identificador consta na SymbolTable
+            //erro se nao
+            if ( symbolTable.getInGlobal(ident.getIdent()) == null ) 
+                 error.show(ident.getIdent() + " nao foi declarado");
             lista.add(new Ident(lexer.getStringValue()));
             lexer.nextToken();
         }
@@ -205,8 +254,12 @@ public class Compiler {
         if(lexer.token != Symbol.IDENT)
             error.signal("Identificador invalido");        
         Ident ident = new Ident(lexer.getStringValue());
-        //Analise Sintatica
-        //verificar se ident ja nao existe na SymbolTable
+        //Analise Semantica
+        //verificar se o identificador ja consta na SymbolTable
+        if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
+             error.show(ident.getIdent() + " ja foi declarado");
+        //se nao existe, adiciona
+        symbolTable.putInGlobal(ident.getIdent(), new Variable(tipo, ident.getIdent()));
         lexer.nextToken();
         
         return new ParamDecl(tipo, ident);
@@ -237,9 +290,13 @@ public class Compiler {
             lexer.nextToken();
             if(lexer.token != Symbol.IDENT)
                 error.signal("identificador nao encontrado");
-            //Analise Sintatica
-            //verificar se ident ja nao existe na SymbolTable 
             Ident ident = new Ident(lexer.getStringValue());
+            //Analise Semantica
+            //verificar se o identificador ja consta na SymbolTable
+            if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
+                 error.show(ident.getIdent() + " ja foi declarado");
+            //se nao existe, adiciona
+            symbolTable.putInGlobal(ident.getIdent(), new Variable(tipo, ident.getIdent())); 
             lexer.nextToken();
             if(lexer.token != Symbol.LPAR)
                 error.signal("e necessario o uso de parenteses");
@@ -321,8 +378,10 @@ public class Compiler {
             error.signal("identificador nao encontrado");        
         Ident id = new Ident(lexer.getStringValue());
         //Analise Semantica
-        //Verifica existencia na SymbolTable
-        //Erro se nao existe
+        //verificar se o identificador consta na SymbolTable
+	//erro se nao
+        if ( symbolTable.getInGlobal(id.getIdent()) == null ) 
+             error.show(id.getIdent() + " nao foi declarado");
         lexer.nextToken();
         if(lexer.token != Symbol.ASSIGN)
             error.signal(":= necessario");
@@ -527,9 +586,12 @@ public class Compiler {
     public PostFixExpr postfixexpr(){
         PFExpr postfixexpr = null;
         if(lexer.token == Symbol.IDENT){
+            Ident ident = new Ident(lexer.getStringValue());
             //Analise Semantica
-            //Verificar se existe na SymbolTable
-            //Erro se nao
+            //verificar se o identificador consta na SymbolTable
+            //erro se nao
+            if ( symbolTable.getInGlobal(ident.getIdent()) == null ) 
+                 error.show(ident.getIdent() + " nao foi declarado");
             if(lexer.checkNextToken() == Symbol.LPAR)
                 postfixexpr = callexpr();
             else
@@ -547,12 +609,17 @@ public class Compiler {
             error.signal("identificador não encontrado");
         Ident id = new Ident(lexer.getStringValue());
         //Analise Semantica
+        //verificar se o identificador consta na SymbolTable
+	//erro se nao
+        if ( symbolTable.getInGlobal(id.getIdent()) == null ) 
+             error.show(id.getIdent() + " nao foi declarado");
         lexer.nextToken();
         if(lexer.token != Symbol.LPAR)
             error.signal("abertura de parenteses necessária");
         lexer.nextToken();
         if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT)
             //Analise Semantica para o IDENT
+            //dentro do exprList
             exprlist = exprList();
         if(lexer.token != Symbol.RPAR)
             error.signal("parenteses nao encontrado");
@@ -562,9 +629,18 @@ public class Compiler {
     
     public ExprList exprList(){
         ArrayList<Expr> exprlist = new ArrayList();
-        if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT)
+        if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT){
             //Analise Semantica para o IDENT 
+            if(lexer.token == Symbol.IDENT){
+                Ident ident = new Ident(lexer.getStringValue());
+                //Analise Semantica
+                //verificar se o identificador consta na SymbolTable
+                //erro se nao
+                if ( symbolTable.getInGlobal(ident.getIdent()) == null ) 
+                    error.show(ident.getIdent() + " nao foi declarado");
+            }
             exprlist.add(expr());
+        }
         while(lexer.token == Symbol.COMMA){
             lexer.nextToken();
             exprlist.add(expr());
@@ -582,7 +658,13 @@ public class Compiler {
                 error.signal("parenteses não encontrado");
         }
         else if(lexer.token == Symbol.IDENT){
-            primary = new Ident(lexer.getStringValue());
+            Ident ident = new Ident(lexer.getStringValue());
+            //Analise Semantica
+            //verificar se o identificador consta na SymbolTable
+            //erro se nao
+            if ( symbolTable.getInGlobal(ident.getIdent()) == null ) 
+                 error.show(ident.getIdent() + " nao foi declarado");
+            primary = ident;
             lexer.nextToken();
         }
         else if(lexer.token == Symbol.NUMBER){
