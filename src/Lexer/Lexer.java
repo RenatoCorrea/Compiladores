@@ -1,15 +1,3 @@
-/*
- Program ::= 'begin' VarDecList ';' AssignStatment 'end'
- VarDecList ::= Variable | Variable ',' VarDecList
- Variable ::= Letter {Letter}
- Letter ::= 'A' | 'B' | ... | 'Z' | 'a' | ... |'z'
- AssignStatment ::= Variable '=' Expr ';'
- Expr ::= Oper  Expr Expr  | Number
- Oper ::= '+' | '-' | '*' | '/'
- Number ::= Digit {Digit}
- Digit ::= '0'| '1' | ... | '9'
- */
-
 package Lexer;
 
 import java.util.*;
@@ -24,11 +12,13 @@ public class Lexer {
     
     public Lexer( char[] input, CompilerError error ) {
         this.input = input;
-        // add an end-of-file label to make it easy to do the lexer
+          // add an end-of-file label to make it easy to do the lexer
         input[input.length - 1] = '\0';
-        // number of the current line
-        lineNumber = 1; 
+          // number of the current line
+        lineNumber = 1;
         tokenPos = 0;
+        lastTokenPos = 0;
+        beforeLastTokenPos = 0;
         this.error = error;
     }
     
@@ -223,6 +213,54 @@ public class Lexer {
         return lineNumber;
     }
     
+    public int getLineNumberBeforeLastToken() {
+        return getLineNumber( beforeLastTokenPos );
+    }
+    
+    private int getLineNumber( int index ) {
+        // return the line number in which the character input[index] is
+        int i, n, size;
+        n = 1;
+        i = 0;
+        size = input.length;
+        while ( i < size && i < index ) {
+          if ( input[i] == '\n' )
+            n++;
+          i++;
+        }
+        return n;
+    }
+    
+    public String getLineBeforeLastToken() {
+        return getLine(beforeLastTokenPos);
+    }
+    
+    private String getLine( int index ) {
+        // get the line that contains input[index]. Assume input[index] is at a token, not
+        // a white space or newline
+        
+        int i = index;
+        if ( i == 0 ) 
+          i = 1; 
+        else 
+          if ( i >= input.length )
+            i = input.length;
+            
+        StringBuffer line = new StringBuffer();
+          // go to the beginning of the line
+        while ( i >= 1 && input[i] != '\n' )
+          i--;
+        if ( input[i] == '\n' )
+          i++;
+          // go to the end of the line putting it in variable line
+        while ( input[i] != '\0' && input[i] != '\n' && input[i] != '\r' ) {
+            line.append( input[i] );
+            i++;
+        }
+        return line.toString();
+    }
+
+    
     public String getCurrentLine() {
         int i = lastTokenPos;
         if ( i == 0 )
@@ -288,16 +326,19 @@ public class Lexer {
                 
     }
     // current token
-    public Symbol token;
+     public Symbol token;
     private String stringValue;
     private int numberValue;
     private char charValue;
     
-    private int  tokenPos;
-    //  input[lastTokenPos] is the last character of the last token
+    private int tokenPos;
+      //  input[lastTokenPos] is the last character of the last token found
     private int lastTokenPos;
-    // program given as input - source code
-    private char[] input;
+      //  input[beforeLastTokenPos] is the last character of the token before the last
+      // token found
+    private int beforeLastTokenPos;
+      // program given as input - source code
+    private char []input;
     
     // number of current line. Starts with 1
     private int lineNumber;

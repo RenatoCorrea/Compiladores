@@ -1,39 +1,47 @@
-/*
-
-    Trabalho 1: Compilador Little
-    
-    Evelyn  RA:
-    Renato Vinícius Melaré Corrêa  RA: 620211
-    William Adriano Alves   RA: 620203
-    
-*/
+/*************************************************
+*   Trabalho 3 - FINAL: Analisador Sintatico     *
+*                                                *
+*   Evelin Soares                   RA:          *   
+*   Renato Vinícius Melaré Corrêa   RA: 620211   *
+*   William Adriano Alves           RA: 620203   * 
+**************************************************/
 
 import Lexer.*;
 import Error.*;
 import AST.*;
+import AuxComp.*;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class Compiler {
 
-	// para geracao de codigo
-	public static final boolean GC = true; 
+    // para geracao de codigo
+    public static final boolean GC = true; 
     
-	private Lexer lexer;
+    private SymbolTable symbolTable;
+    private Lexer lexer;
     private CompilerError error;
 
-    public void compile( char []p_input ) {
-        error = new CompilerError(null);
-        lexer = new Lexer(p_input, error);
+    public Program compile( char []input, PrintWriter outError ) {
+        symbolTable = new SymbolTable();
+        error = new CompilerError( lexer, new PrintWriter(outError) );
+        lexer = new Lexer(input, error);
         error.setLexer(lexer);
                 
         lexer.nextToken();
-        Program p = program();
-        PW pw = new PW();
-        pw.set(System.out);
-        p.genC(pw);
-        if (lexer.token != Symbol.EOF) 
-            error.signal("nao chegou no fim do arq");
-        
+        Program p = null;
+        try {
+          p = program();
+        } catch ( Exception e ) {
+              // the below statement prints the stack of called methods.
+              // of course, it should be removed if the compiler were 
+              // a production compiler.
+            e.printStackTrace();
+        }
+        if ( error.wasAnErrorSignalled() )
+          return null;
+        else
+          return p;                       
     }
 
     //Program ::= PROGRAM IDENT BEGIN PgmBody END
@@ -58,6 +66,16 @@ public class Compiler {
         if (lexer.token != Symbol.END)
             error.signal("faltou end");
         lexer.nextToken();
+        
+        //temporario
+        if ( lexer.token != Symbol.EOF ) 
+            error.signal("EOF expected");
+        
+        // Analise Semantica
+        // Deve haver uma funcao Main
+        Object object;
+        if ( (object =  symbolTable.getInGlobal("main")) == null )
+          error.show("O codigo fonte deve ter uma funcao chamada main");
         
         return new Program(ident, decl, fd);
     }
