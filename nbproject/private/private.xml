@@ -3,7 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/WilliamAlves/Documents/GitHub/Compiladores/src/Compiler.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/tests/test4.i</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/PW.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/Main.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/Variable.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/ReadStmt.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/Lexer/Symbol.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/Compiler.java</file>
+            <file>file:/C:/Users/Renato/Documents/Disciplinas/2018-1/Compiladores/Lexico/Compiladores/src/AST/Expr.java</file>
         </group>
     </open-files>
 </project-private>

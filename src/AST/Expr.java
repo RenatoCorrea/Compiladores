@@ -13,10 +13,12 @@ package AST;
 public class Expr extends PrimaryAbstract{
     Factor factor;
     ExprTail exprtail;
+    VarType tipo;
 
-    public Expr(Factor factor, ExprTail exprtail) {
+    public Expr(Factor factor, ExprTail exprtail, VarType tipo) {
         this.factor = factor;
         this.exprtail = exprtail;
+        this.tipo = tipo;
     }
 
     public Factor getFactor() {
@@ -27,6 +29,15 @@ public class Expr extends PrimaryAbstract{
         return exprtail;
     }
 
+    
+    public void setTipo(VarType tipo) {
+        this.tipo = tipo;
+    }
+    
+    public String getTipo(){
+        return tipo.getType();
+    }
+    
     @Override
     public void genC( PW pw ) {
         factor.genC(pw);

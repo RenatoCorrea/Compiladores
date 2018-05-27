@@ -21,6 +21,7 @@ public class Compiler {
     private SymbolTable symbolTable;
     private Lexer lexer;
     private CompilerError error;
+    private VarType tipoAux;
 
     public Program compile( char []input, PrintWriter outError ) {
         symbolTable = new SymbolTable();
@@ -118,13 +119,13 @@ public class Compiler {
             lexer.nextToken();
             if(lexer.token != Symbol.IDENT)
                 error.signal("Identificador nao encontrado");
-            	Ident ident = new Ident(lexer.getStringValue());
-                //Analise Semantica
-                //verificar se o identificador ja consta na SymbolTable
-                if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
-                     error.show(ident.getIdent() + " ja foi declarado");
-                //se nao existe, adiciona
-                symbolTable.putInGlobal(ident.getIdent(), new Variable(new VarType("String"), ident.getIdent()));  
+            Ident ident = new Ident(lexer.getStringValue());
+            //Analise Semantica
+            //verificar se o identificador ja consta na SymbolTable
+            if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
+                 error.show(ident.getIdent() + " ja foi declarado");
+            //se nao existe, adiciona
+            symbolTable.putInGlobal(ident.getIdent(), new Variable(new VarType(Symbol.STRING.toString()), ident.getIdent()));  
             lexer.nextToken();
             if(lexer.token != Symbol.ASSIGN)
                 error.signal(" := nao encontrado");
@@ -383,6 +384,7 @@ public class Compiler {
         if ( symbolTable.getInGlobal(id.getIdent()) == null ) 
              error.show(id.getIdent() + " nao foi declarado");
         lexer.nextToken();
+        
         if(lexer.token != Symbol.ASSIGN)
             error.signal(":= necessario");
         lexer.nextToken();
@@ -390,6 +392,9 @@ public class Compiler {
         //Analise Semantica
         //Verificar se o Tipo da variavel e da Expr sao iguais
         //tipo: Int = Int ou String = String
+        Variable aux = (Variable) symbolTable.getInGlobal(id.getIdent());
+        if( aux.getTipo().getType().compareTo(expr.getTipo()) == 0 )
+            error.show(id.getIdent() + " nao e compativel com tipo atribuido");
         return new AssignExpr(id, expr);
     }
     
