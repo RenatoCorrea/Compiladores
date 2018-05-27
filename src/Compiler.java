@@ -21,7 +21,7 @@ public class Compiler {
     private SymbolTable symbolTable;
     private Lexer lexer;
     private CompilerError error;
-    private VarType tipoAux;
+    private VarType tipoReturn;
 
     public Program compile( char []input, PrintWriter outError ) {
         symbolTable = new SymbolTable();
@@ -284,6 +284,7 @@ public class Compiler {
     
     public FuncDecl funcdecl(){
         if(lexer.token == Symbol.FUNCTION){
+            tipoReturn = null;
             lexer.nextToken();
             if(lexer.token != Symbol.VOID && lexer.token != Symbol.INT && lexer.token != Symbol.FLOAT)
                 error.signal("tipo invalido");
@@ -316,7 +317,11 @@ public class Compiler {
             if(lexer.token != Symbol.END)
                 error.signal("END nao encontrado");
             lexer.nextToken();
-            
+            //analise semantica
+            //Verifica se o tipo do retorno e compativel com o tipo da funcao
+            if( tipoReturn != null && (tipo.getType()).compareTo(tipoReturn.getType()) != 0)
+                error.show("O tipo do retorno e incompativel com o tipo da funcao");
+            tipoReturn = null;
             return new FuncDecl(tipo, ident, pdl, fb);
         }
         
@@ -344,8 +349,13 @@ public class Compiler {
     
     public Stmt stmt(){
         Stmt var = null;
-        if(lexer.token == Symbol.IDENT)
-           var = assignstmt();
+        if(lexer.token == Symbol.IDENT){
+            Ident id = new Ident(lexer.getStringValue());
+            if ( symbolTable.getInGlobal(id.getIdent()) == null ) 
+                var = assignstmt();
+            else
+                var = callstmt();
+        }
         else if(lexer.token == Symbol.READ)
             var = readstmt();
         else if(lexer.token == Symbol.WRITE)
@@ -408,15 +418,20 @@ public class Compiler {
         lexer.nextToken();
         //Analise Semantica
         //Verificar se existem na SymbolTable
-        //Erro se nao existem
+        //Erro se nao existem. Verifica dentro de idList
         ArrayList<Ident> idList = idList();
+        ArrayList<VarType> typeList = null;
+        for(Ident id : idList){
+            Variable aux = (Variable) symbolTable.getInGlobal(id.getIdent());
+            typeList.add(aux.getTipo());
+        }
         if(lexer.token != Symbol.RPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
-        return new ReadStmt(idList);
+        return new ReadStmt(idList, typeList);
     }
     
     //WriteStmt ::= WRITE ‘(‘ IdList ‘);’
@@ -431,13 +446,18 @@ public class Compiler {
         //Verificar se existe na SymbolTable
         //erro se nao
         ArrayList<Ident> idList = idList();
+        ArrayList<VarType> typeList = null;
+        for(Ident id : idList){
+            Variable aux = (Variable) symbolTable.getInGlobal(id.getIdent());
+            typeList.add(aux.getTipo());
+        }
         if(lexer.token != Symbol.RPAR)
             error.signal("parenteses nao encontrado");
         lexer.nextToken();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
-        return new WriteStmt(idList);
+        return new WriteStmt(idList, typeList);
     }
     
     //ReturnStmt ::= RETURN expr ‘;’
@@ -449,9 +469,9 @@ public class Compiler {
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
-        //Eu acho que deveria haver analise semantica aqui
-        //vendo se o tipo de retorno base com a da funcao
-        //mas nao sei como isso seria feito
+        //Analise semantica
+        //Salva o tipo do retorno para verificar se ele e igual ao tipo da funcao
+        tipoReturn = expr.getType();
         return new ReturnStmt(expr);
     }
     
@@ -463,8 +483,6 @@ public class Compiler {
         if(lexer.token != Symbol.LPAR)
             error.signal("abertura de parenteses necessaria");
         lexer.nextToken();
-        //Tem que fazer analise semantica da condicao
-        //mas nao existe tipo bool aqui
         Cond cond = cond();
         if(lexer.token != Symbol.RPAR)
             error.signal("ponto e virgula necessario");
@@ -492,20 +510,19 @@ public class Compiler {
             error.signal("abertura de parenteses necessaria");
         lexer.nextToken();
         if(lexer.token == Symbol.IDENT)
-            //Analise semantica feita dentro de AssignExpr
+            //Analise semantica feita dentro de AssignExpr()
             assignexpr1 = assignexpr();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("Ponto e virgula necessaria");
         lexer.nextToken();
         if(lexer.token == Symbol.LPAR || lexer.token == Symbol.IDENT)
-            //Acho que dentro do Cond tem que fazer a semantica, conforme
-            //descrito no metodo de cima 
+            //Analise semantica feita dentro de cond()
             cond = cond();
         if(lexer.token != Symbol.SEMICOLON)
             error.signal("ponto e virgula necessario");
         lexer.nextToken();
         if(lexer.token == Symbol.IDENT)
-            //Analise Semantica dentro de AssignExpr
+            //Analise Semantica dentro de AssignExpr()
             assignexpr2 = assignexpr();
         if(lexer.token != Symbol.RPAR)
             error.signal("fechamento de parenteses necessario");
@@ -535,6 +552,8 @@ public class Compiler {
         //Analise semantica
         //verificar se tipos sao compativeis
         //tipo: Int < Int, Float = Float 
+        if(expr1.getTipo().compareTo(expr2.getTipo()) != 0)
+            error.show("Tipos incompativeis");
         return new Cond(expr1, expr2, compop);
     }
     
@@ -542,7 +561,6 @@ public class Compiler {
     public ComPop compop(){
         if(lexer.token != Symbol.EQUAL && lexer.token != Symbol.LT && lexer.token != Symbol.GT)
             error.signal("erro no sinal");
-            //adicionar ifs pra saber qual eh
         String compop = lexer.getStringValue();
         lexer.nextToken();
         return new ComPop(compop);
@@ -551,7 +569,11 @@ public class Compiler {
     public Expr expr(){
         Factor factor = factor();
         ExprTail exprtail = exprTail();
-        return new Expr(factor, exprtail);
+        //Analise semantica
+        //Verifica se os tipos sao compativeis
+        if(factor.getType().getType().compareTo(exprtail.getType().getType()) != 0)
+            error.show("Tipos incompativeis");
+        return new Expr(factor, exprtail, factor.getType());
     }
     
     public ExprTail exprTail(){
@@ -565,19 +587,27 @@ public class Compiler {
         }
         //Analise Semantica
         //Verificar se tipos sao compativeis
-        return new ExprTail(addop, factor, exprtail);
+        if(exprtail != null && factor.getType().getType().compareTo(exprtail.getType().getType()) != 0)
+            error.show("Tipos incompativeis");
+        return new ExprTail(addop, factor, exprtail, factor.getType());
     }
     
     public Factor factor(){
         PostFixExpr postfixexpr = postfixexpr();
         FactorTail factortail = factorTail();
-        return new Factor(postfixexpr, factortail);
+        VarType tipoFactor = null;
+        if(postfixexpr.getType().getType().compareTo(factortail.getType().getType()) != 0)
+            tipoFactor = new VarType(Symbol.FLOAT.toString());
+        else
+            tipoFactor = postfixexpr.getType();
+        return new Factor(postfixexpr, factortail, tipoFactor);
     }
     
     public FactorTail factorTail(){
         MulOp mulop = null;
         PostFixExpr postfixexpr = null;
         FactorTail factortail = null;
+        VarType tipoFT = null;
         if(lexer.token == Symbol.MULT || lexer.token == Symbol.DIV){
             mulop = mulop();
             postfixexpr = postfixexpr();
@@ -585,11 +615,18 @@ public class Compiler {
         }
         //Analise Semantica
         //Verificar Tipos
-        return new FactorTail(mulop, postfixexpr, factortail);
+        //Se o tipo de postfixexpr == tipo de factortail entao basta colocar o tipo de um deles como o tipo de factortail
+        if( factortail != null && postfixexpr != null && factortail.getType().getType().compareTo(postfixexpr.getType().getType()) == 0 )
+            tipoFT = factortail.getType();
+        //Se o tipo de postfixexpr != tipo de factortail então o tipo será FLOAT
+        else
+            tipoFT = new VarType(Symbol.FLOAT.toString());
+        return new FactorTail(mulop, postfixexpr, factortail, tipoFT);
     }
     
     public PostFixExpr postfixexpr(){
         PFExpr postfixexpr = null;
+        VarType tipoPFExpr = null;
         if(lexer.token == Symbol.IDENT){
             Ident ident = new Ident(lexer.getStringValue());
             //Analise Semantica
@@ -597,15 +634,30 @@ public class Compiler {
             //erro se nao
             if ( symbolTable.getInGlobal(ident.getIdent()) == null ) 
                  error.show(ident.getIdent() + " nao foi declarado");
-            if(lexer.checkNextToken() == Symbol.LPAR)
+            if(lexer.checkNextToken() == Symbol.LPAR){
+                //Analise Semantica
+                //Identifica o tipo da funcao em callexpr para verificacao de tipos
                 postfixexpr = callexpr();
-            else
-                postfixexpr = primary();
+                Variable aux = (Variable) symbolTable.getInGlobal(ident.getIdent());
+                tipoPFExpr = aux.getTipo();
+            }
+            else{
+                //Analise Semantica
+                //Identifica o tipo da funcao em primary para verificacao de tipos
+                Primary auxPrimary = primary();
+                postfixexpr = auxPrimary;
+                tipoPFExpr = auxPrimary.getType();
+            }
         }
-        else
-            postfixexpr = primary();
+        else{
+            //Analise Semantica
+            //Identifica o tipo da funcao em primary para verificacao de tipos
+            Primary auxPrimary = primary();
+            postfixexpr = auxPrimary;
+            tipoPFExpr = auxPrimary.getType();
+        }
         
-        return new PostFixExpr(postfixexpr);
+        return new PostFixExpr(postfixexpr, tipoPFExpr);
     }
     
     public CallExpr callexpr(){
@@ -656,11 +708,15 @@ public class Compiler {
     
     public Primary primary(){
         PrimaryAbstract primary = null;
+        VarType tipoPrimary = null;
         if(lexer.token == Symbol.LPAR){
             lexer.nextToken();
-            primary = expr();
+            Expr expr = expr();
+            tipoPrimary = expr.getType();
+            primary = expr;
             if(lexer.token != Symbol.RPAR)
                 error.signal("parenteses não encontrado");
+            
         }
         else if(lexer.token == Symbol.IDENT){
             Ident ident = new Ident(lexer.getStringValue());
@@ -669,16 +725,24 @@ public class Compiler {
             //erro se nao
             if ( symbolTable.getInGlobal(ident.getIdent()) == null ) 
                  error.show(ident.getIdent() + " nao foi declarado");
+            Variable aux = (Variable) symbolTable.getInGlobal(ident.getIdent());
             primary = ident;
+            tipoPrimary = aux.getTipo();
             lexer.nextToken();
         }
-        else if(lexer.token == Symbol.NUMBER){
+        else if(lexer.token == Symbol.INTLITERAL){
             primary = new IntLiteral("" + lexer.getNumberValue());
             lexer.nextToken();
+            tipoPrimary = new VarType(Symbol.INT.toString());
+        }
+        else if(lexer.token == Symbol.FLOATLITERAL){
+            primary = new FloatLiteral("" + lexer.getNumberValue());
+            lexer.nextToken();
+            tipoPrimary = new VarType(Symbol.FLOAT.toString());
         }
         else
             error.signal("Esperado (, identificador ou number");
-        return new Primary(primary);
+        return new Primary(primary, tipoPrimary);
     }
     
     public AddOp addop(){
@@ -695,6 +759,13 @@ public class Compiler {
         MulOp mulop = new MulOp(lexer.getStringValue());
         lexer.nextToken();
         return mulop;
+    }
+    
+    public CallStmt callstmt(){
+        CallExpr callexpr;
+        callexpr = callexpr();
+        Variable tipoCallExpr = (Variable) symbolTable.getInGlobal(callexpr.getId().getIdent());
+        return new CallStmt(callexpr, tipoCallExpr.getTipo());
     }
     
 }

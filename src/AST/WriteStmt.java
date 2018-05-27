@@ -6,6 +6,7 @@
 
 package AST;
 
+import Lexer.Symbol;
 import java.util.ArrayList;
 
 /**
@@ -14,22 +15,31 @@ import java.util.ArrayList;
  */
 public class WriteStmt extends Stmt{
     ArrayList<Ident> idlist;
+    ArrayList<VarType> typeList;
 
-    public WriteStmt(ArrayList<Ident> idlist) {
+    public WriteStmt(ArrayList<Ident> idlist, ArrayList<VarType> typeList) {
         this.idlist = idlist;
+        this.typeList = typeList;
     }
 
+    
     public ArrayList<Ident> getIdlist() {
         return idlist;
     }
     
+    public ArrayList<VarType> getTypeList() {
+        return typeList;
+    }
+    
     public void genC( PW pw ){
         pw.print("printf(\"");
-        for(Ident id : idlist){
-            /*if ( id.getType() == Type.charType ) 
-                pw.print("%c, ");
-            else*/
-                pw.out.print("%d");
+        for(int i = 0; i<(idlist.size()); i++){
+            if ( typeList.get(i).getType().compareTo(Symbol.FLOAT.toString()) == 0 ) 
+                pw.print("%f");
+            else if ( typeList.get(i).getType().compareTo(Symbol.INT.toString()) == 0 ) 
+                pw.print("%d");
+            else
+                pw.out.print("%s");
         }
         pw.out.print("\", ");
         for(int i = 0; i<(idlist.size())-1; i++){

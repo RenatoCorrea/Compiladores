@@ -14,11 +14,13 @@ public class FactorTail {
     MulOp mulop;
     PostFixExpr postfixexpr;
     FactorTail factortail;
+    VarType tipo;
 
-    public FactorTail(MulOp mulop, PostFixExpr postfixexpr, FactorTail factortail) {
+    public FactorTail(MulOp mulop, PostFixExpr postfixexpr, FactorTail factortail, VarType tipo) {
         this.mulop = mulop;
         this.postfixexpr = postfixexpr;
         this.factortail = factortail;
+        this.tipo = tipo;
     }
 
     public MulOp getMulop() {
@@ -31,6 +33,10 @@ public class FactorTail {
 
     public FactorTail getFactortail() {
         return factortail;
+    }
+    
+    public VarType getType(){
+        return tipo;
     }
     
     public void genC( PW pw ){

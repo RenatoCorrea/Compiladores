@@ -20,6 +20,12 @@ public class Expr extends PrimaryAbstract{
         this.exprtail = exprtail;
         this.tipo = tipo;
     }
+    
+    public Expr(Factor factor, ExprTail exprtail) {
+        this.factor = factor;
+        this.exprtail = exprtail;
+        this.tipo = null;
+    }
 
     public Factor getFactor() {
         return factor;
@@ -36,6 +42,10 @@ public class Expr extends PrimaryAbstract{
     
     public String getTipo(){
         return tipo.getType();
+    }
+    
+    public VarType getType(){
+        return tipo;
     }
     
     @Override

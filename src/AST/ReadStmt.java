@@ -6,6 +6,7 @@
 
 package AST;
 
+import Lexer.Symbol;
 import java.util.ArrayList;
 
 /**
@@ -14,23 +15,29 @@ import java.util.ArrayList;
  */
 public class ReadStmt extends Stmt{
     ArrayList<Ident> idlist;
+    ArrayList<VarType> typeList;
+    
+    public ReadStmt(ArrayList<Ident> idlist, ArrayList<VarType> typeList) {
+        this.idlist = idlist;
+        this.typeList = typeList;
+    }
 
     public ArrayList<Ident> getIdlist() {
         return idlist;
     }
-
-    public ReadStmt(ArrayList<Ident> idlist) {
-        this.idlist = idlist;
+    
+    public ArrayList<VarType> getTypeList(){
+        return typeList;
     }
-
     
     public void genC( PW pw ){
-        for(Ident id : idlist){
-            /*if ( id.getType() == Type.charType ) 
-              pw.print("{ char s[256]; gets(s); sscanf(s, \"%c\", &"  );
-            else // should only be an integer*/
+        for(int i = 0; i<(idlist.size()); i++){
+            if ( typeList.get(i).getType().compareTo(Symbol.FLOAT.toString()) == 0 )
+              pw.print("{ char s[256]; gets(s); sscanf(s, \"%f\", &"  );
+            else // should only be an integer
               pw.print("{ char s[256]; gets(s); sscanf(s, \"%d\", &"  );
-            pw.out.println(  id.getIdent() + "); }" );
+            idlist.get(i).genC(pw);
+            pw.out.println("); }" );
         }
     }
 }

@@ -12,9 +12,15 @@ package AST;
  */
 public class PostFixExpr extends PFExpr{
     PFExpr pfexpr;
+    VarType tipo;
 
-    public PostFixExpr(PFExpr pfexpr) {
+    public PostFixExpr(PFExpr pfexpr, VarType tipo) {
         this.pfexpr = pfexpr;
+        this.tipo =  tipo;
+    }
+    
+    public VarType getType(){
+        return tipo;
     }
     
     public void genC( PW pw ){

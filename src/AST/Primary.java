@@ -12,9 +12,15 @@ package AST;
  */
 public class Primary extends PrimaryAbstract{
     PrimaryAbstract primary;
+    VarType tipo;
 
-    public Primary(PrimaryAbstract primary) {
+    public Primary(PrimaryAbstract primary, VarType tipo) {
         this.primary = primary;
+        this.tipo = tipo;
+    }
+    
+    public VarType getType(){
+        return tipo;
     }
     
     @Override

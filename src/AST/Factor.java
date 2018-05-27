@@ -13,12 +13,14 @@ package AST;
 public class Factor {
     PostFixExpr postfixexpr;
     FactorTail factortail;
+    VarType tipo;
 
     
 
-    public Factor(PostFixExpr postfixexpr, FactorTail factortail) {
+    public Factor(PostFixExpr postfixexpr, FactorTail factortail, VarType tipo) {
         this.postfixexpr = postfixexpr;
         this.factortail = factortail;
+        this.tipo = tipo;
     }
     
     public PostFixExpr getPostfixexpr() {
@@ -27,6 +29,10 @@ public class Factor {
 
     public FactorTail getFactortail() {
         return factortail;
+    }
+    
+    public VarType getType(){
+        return tipo;
     }
     
     public void genC( PW pw ){

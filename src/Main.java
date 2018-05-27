@@ -38,7 +38,7 @@ public class Main {
                 return ;
             }
                 
-            if ( numChRead != file.length() ) {
+            if ( numChRead != file.length() - 1 ) {
                 System.out.println("Read error");
                 return ;
             }

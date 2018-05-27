@@ -93,9 +93,28 @@ public class Lexer {
             //move o indicador de onde esta o inicio do proximo token 
             tokenPos++;
         }
+        if ( input[tokenPos] == '.' ){
+            aux = aux.append(input[tokenPos]);
+            tokenPos++;
+            while (Character.isDigit(input[tokenPos])){
+                //os numeros serao concatenados em uma string
+                aux = aux.append(input[tokenPos]);
+                //move o indicador de onde esta o inicio do proximo token 
+                tokenPos++;
+                
+                //converte a string para float
+                floatValue = Float.parseFloat(aux.toString());
+                //caso o float seja maior que o permitido, erro!
+                if (floatValue > MaxValueFloat){
+                    error.signal("Numero de ponto flutuante maior que o permitido!");
+                }
+                //deu tudo certo: aviso que o token se trata de um numero
+                token = Symbol.FLOATLITERAL;
+            }
+        }
 
         //se a string nao for nula (tem numeros nela)
-        if (aux.length() > 0){
+        else if (aux.length() > 0){
             //converte a string para inteiro
             numberValue = Integer.parseInt(aux.toString());
             //caso o inteiro seja maior que o permitido, erro!
@@ -103,7 +122,7 @@ public class Lexer {
                 error.signal("Numero inteiro maior que o permitido!");
             }
             //deu tudo certo: aviso que o token se trata de um numero
-            token = Symbol.NUMBER;
+            token = Symbol.INTLITERAL;
         
         // se a string estava vazia, era pq nao havia numeros, entao:
         } else {
@@ -328,6 +347,7 @@ public class Lexer {
     // current token
      public Symbol token;
     private String stringValue;
+    private float floatValue;
     private int numberValue;
     private char charValue;
     
@@ -345,4 +365,5 @@ public class Lexer {
     
     private CompilerError error;
     private static final int MaxValueInteger = 32768;
+    private static final int MaxValueFloat = 32768;
 }
