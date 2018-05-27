@@ -38,10 +38,10 @@ public class Main {
                 return ;
             }
                 
-            if ( numChRead != file.length() - 1 ) {
+            /*if ( numChRead != file.length()) {
                 System.out.println("Read error");
                 return ;
-            }
+            }*/
             try {
               stream.close();
             } catch ( IOException e ) {

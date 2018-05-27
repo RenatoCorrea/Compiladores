@@ -58,7 +58,7 @@ public class Compiler {
         //Analise Semantica
         //verificar se o identificador ja consta na SymbolTable
         if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
-             error.show(ident.getIdent() + " ja foi declarado");
+             error.signal(ident.getIdent() + " ja foi declarado");
         //se nao existe, adiciona
         symbolTable.putInGlobal(ident.getIdent(), ident);    
         lexer.nextToken();
@@ -81,7 +81,7 @@ public class Compiler {
         // Analise Semantica
         // Deve haver uma funcao Main
         if (symbolTable.getInGlobal("main") == null )
-          error.show("O codigo fonte deve ter uma funcao chamada main");
+          error.signal("O codigo fonte deve ter uma funcao chamada main");
         
         return new Program(ident, decl, fd);
     }
@@ -123,7 +123,7 @@ public class Compiler {
             //Analise Semantica
             //verificar se o identificador ja consta na SymbolTable
             if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
-                 error.show(ident.getIdent() + " ja foi declarado");
+                 error.signal(ident.getIdent() + " ja foi declarado");
             //se nao existe, adiciona
             symbolTable.putInGlobal(ident.getIdent(), new Variable(new VarType(Symbol.STRING.toString()), ident.getIdent()));  
             lexer.nextToken();
@@ -181,7 +181,7 @@ public class Compiler {
         //Analise Semantica
         //verificar se o identificador ja consta na SymbolTable
         if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
-             error.show(ident.getIdent() + " ja foi declarado");
+             error.signal(ident.getIdent() + " ja foi declarado");
         //se nao existe, adiciona
         symbolTable.putInGlobal(ident.getIdent(), new Variable(tipo, ident.getIdent()));      
         //adiciona IDENT na lista
@@ -196,7 +196,7 @@ public class Compiler {
             //Analise Semantica
             //verificar se o identificador ja consta na SymbolTable
             if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
-                 error.show(ident.getIdent() + " ja foi declarado");
+                 error.signal(ident.getIdent() + " ja foi declarado");
             //se nao existe, adiciona
             symbolTable.putInGlobal(ident.getIdent(), new Variable(tipo, ident.getIdent()));      
             //adiciona IDENT na lista
@@ -216,7 +216,7 @@ public class Compiler {
         //verificar se o identificador consta na SymbolTable
 	//erro se nao
         if ( symbolTable.getInGlobal(ident.getIdent()) == null ) 
-             error.show(ident.getIdent() + " nao foi declarado");
+             error.signal(ident.getIdent() + " nao foi declarado");
         lista.add(new Ident(lexer.getStringValue()));
         lexer.nextToken();
         while(lexer.token == Symbol.COMMA){
@@ -228,7 +228,7 @@ public class Compiler {
             //verificar se o identificador consta na SymbolTable
             //erro se nao
             if ( symbolTable.getInGlobal(ident.getIdent()) == null ) 
-                 error.show(ident.getIdent() + " nao foi declarado");
+                 error.signal(ident.getIdent() + " nao foi declarado");
             lista.add(new Ident(lexer.getStringValue()));
             lexer.nextToken();
         }
@@ -258,7 +258,7 @@ public class Compiler {
         //Analise Semantica
         //verificar se o identificador ja consta na SymbolTable
         if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
-             error.show(ident.getIdent() + " ja foi declarado");
+             error.signal(ident.getIdent() + " ja foi declarado");
         //se nao existe, adiciona
         symbolTable.putInGlobal(ident.getIdent(), new Variable(tipo, ident.getIdent()));
         lexer.nextToken();
@@ -296,7 +296,7 @@ public class Compiler {
             //Analise Semantica
             //verificar se o identificador ja consta na SymbolTable
             if ( symbolTable.getInGlobal(ident.getIdent()) != null ) 
-                 error.show(ident.getIdent() + " ja foi declarado");
+                 error.signal(ident.getIdent() + " ja foi declarado");
             //se nao existe, adiciona
             symbolTable.putInGlobal(ident.getIdent(), new Variable(tipo, ident.getIdent())); 
             lexer.nextToken();
@@ -320,7 +320,7 @@ public class Compiler {
             //analise semantica
             //Verifica se o tipo do retorno e compativel com o tipo da funcao
             if( tipoReturn != null && (tipo.getType()).compareTo(tipoReturn.getType()) != 0)
-                error.show("O tipo do retorno e incompativel com o tipo da funcao");
+                error.signal("O tipo do retorno e incompativel com o tipo da funcao");
             tipoReturn = null;
             return new FuncDecl(tipo, ident, pdl, fb);
         }
@@ -351,7 +351,7 @@ public class Compiler {
         Stmt var = null;
         if(lexer.token == Symbol.IDENT){
             Ident id = new Ident(lexer.getStringValue());
-            if ( symbolTable.getInGlobal(id.getIdent()) == null ) 
+            if ( lexer.checkNextToken() == Symbol.ASSIGN ) 
                 var = assignstmt();
             else
                 var = callstmt();
@@ -392,7 +392,7 @@ public class Compiler {
         //verificar se o identificador consta na SymbolTable
 	//erro se nao
         if ( symbolTable.getInGlobal(id.getIdent()) == null ) 
-             error.show(id.getIdent() + " nao foi declarado");
+             error.signal(id.getIdent() + " nao foi declarado");
         lexer.nextToken();
         
         if(lexer.token != Symbol.ASSIGN)
@@ -403,8 +403,10 @@ public class Compiler {
         //Verificar se o Tipo da variavel e da Expr sao iguais
         //tipo: Int = Int ou String = String
         Variable aux = (Variable) symbolTable.getInGlobal(id.getIdent());
-        if( aux.getTipo().getType().compareTo(expr.getTipo()) == 0 )
-            error.show(id.getIdent() + " nao e compativel com tipo atribuido");
+        if( aux.getTipo().getType().compareTo(Symbol.STRING.toString()) == 0 )
+            error.signal(id.getIdent() + " nao e compativel com tipo atribuido");
+        if( expr.getTipo().compareTo(Symbol.STRING.toString()) == 0 )
+            error.signal(id.getIdent() + " nao e compativel com tipo atribuido");
         return new AssignExpr(id, expr);
     }
     
@@ -420,7 +422,7 @@ public class Compiler {
         //Verificar se existem na SymbolTable
         //Erro se nao existem. Verifica dentro de idList
         ArrayList<Ident> idList = idList();
-        ArrayList<VarType> typeList = null;
+        ArrayList<VarType> typeList = new ArrayList();
         for(Ident id : idList){
             Variable aux = (Variable) symbolTable.getInGlobal(id.getIdent());
             typeList.add(aux.getTipo());
@@ -446,7 +448,7 @@ public class Compiler {
         //Verificar se existe na SymbolTable
         //erro se nao
         ArrayList<Ident> idList = idList();
-        ArrayList<VarType> typeList = null;
+        ArrayList<VarType> typeList = new ArrayList();
         for(Ident id : idList){
             Variable aux = (Variable) symbolTable.getInGlobal(id.getIdent());
             typeList.add(aux.getTipo());
@@ -553,7 +555,7 @@ public class Compiler {
         //verificar se tipos sao compativeis
         //tipo: Int < Int, Float = Float 
         if(expr1.getTipo().compareTo(expr2.getTipo()) != 0)
-            error.show("Tipos incompativeis");
+            error.signal("Tipos incompativeis");
         return new Cond(expr1, expr2, compop);
     }
     
@@ -571,8 +573,8 @@ public class Compiler {
         ExprTail exprtail = exprTail();
         //Analise semantica
         //Verifica se os tipos sao compativeis
-        if(factor.getType().getType().compareTo(exprtail.getType().getType()) != 0)
-            error.show("Tipos incompativeis");
+        if(exprtail != null && exprtail.getType() != null && factor.getType().getType().compareTo(exprtail.getType().getType()) != 0)
+            error.signal("Tipos incompativeis");
         return new Expr(factor, exprtail, factor.getType());
     }
     
@@ -580,6 +582,7 @@ public class Compiler {
         AddOp addop = null;
         Factor factor = null;
         ExprTail exprtail = null;
+        VarType aux = null;
         if(lexer.token == Symbol.PLUS || lexer.token == Symbol.MINUS){
             addop = addop();
             factor = factor();
@@ -587,16 +590,18 @@ public class Compiler {
         }
         //Analise Semantica
         //Verificar se tipos sao compativeis
-        if(exprtail != null && factor.getType().getType().compareTo(exprtail.getType().getType()) != 0)
-            error.show("Tipos incompativeis");
-        return new ExprTail(addop, factor, exprtail, factor.getType());
+        if(exprtail != null && exprtail.getType() != null && factor.getType().getType().compareTo(exprtail.getType().getType()) != 0)
+            error.signal("Tipos incompativeis");
+        if(factor != null)
+            aux = factor.getType();
+        return new ExprTail(addop, factor, exprtail, aux);
     }
     
     public Factor factor(){
         PostFixExpr postfixexpr = postfixexpr();
         FactorTail factortail = factorTail();
         VarType tipoFactor = null;
-        if(postfixexpr.getType().getType().compareTo(factortail.getType().getType()) != 0)
+        if(factortail != null && factortail.getType() != null && postfixexpr.getType().getType().compareTo(factortail.getType().getType()) != 0)
             tipoFactor = new VarType(Symbol.FLOAT.toString());
         else
             tipoFactor = postfixexpr.getType();
@@ -616,11 +621,13 @@ public class Compiler {
         //Analise Semantica
         //Verificar Tipos
         //Se o tipo de postfixexpr == tipo de factortail entao basta colocar o tipo de um deles como o tipo de factortail
-        if( factortail != null && postfixexpr != null && factortail.getType().getType().compareTo(postfixexpr.getType().getType()) == 0 )
+        if( factortail != null && factortail.getType() != null && postfixexpr != null && factortail.getType().getType().compareTo(postfixexpr.getType().getType()) == 0 )
             tipoFT = factortail.getType();
         //Se o tipo de postfixexpr != tipo de factortail então o tipo será FLOAT
-        else
+        else if( factortail != null && factortail.getType() != null && postfixexpr != null && factortail.getType().getType().compareTo(postfixexpr.getType().getType()) != 0 )
             tipoFT = new VarType(Symbol.FLOAT.toString());
+        else
+            tipoFT = null;
         return new FactorTail(mulop, postfixexpr, factortail, tipoFT);
     }
     
@@ -633,7 +640,7 @@ public class Compiler {
             //verificar se o identificador consta na SymbolTable
             //erro se nao
             if ( symbolTable.getInGlobal(ident.getIdent()) == null ) 
-                 error.show(ident.getIdent() + " nao foi declarado");
+                 error.signal(ident.getIdent() + " nao foi declarado");
             if(lexer.checkNextToken() == Symbol.LPAR){
                 //Analise Semantica
                 //Identifica o tipo da funcao em callexpr para verificacao de tipos
@@ -669,7 +676,7 @@ public class Compiler {
         //verificar se o identificador consta na SymbolTable
 	//erro se nao
         if ( symbolTable.getInGlobal(id.getIdent()) == null ) 
-             error.show(id.getIdent() + " nao foi declarado");
+             error.signal(id.getIdent() + " nao foi declarado");
         lexer.nextToken();
         if(lexer.token != Symbol.LPAR)
             error.signal("abertura de parenteses necessária");
@@ -694,7 +701,7 @@ public class Compiler {
                 //verificar se o identificador consta na SymbolTable
                 //erro se nao
                 if ( symbolTable.getInGlobal(ident.getIdent()) == null ) 
-                    error.show(ident.getIdent() + " nao foi declarado");
+                    error.signal(ident.getIdent() + " nao foi declarado");
             }
             exprlist.add(expr());
         }
@@ -724,7 +731,7 @@ public class Compiler {
             //verificar se o identificador consta na SymbolTable
             //erro se nao
             if ( symbolTable.getInGlobal(ident.getIdent()) == null ) 
-                 error.show(ident.getIdent() + " nao foi declarado");
+                 error.signal(ident.getIdent() + " nao foi declarado");
             Variable aux = (Variable) symbolTable.getInGlobal(ident.getIdent());
             primary = ident;
             tipoPrimary = aux.getTipo();

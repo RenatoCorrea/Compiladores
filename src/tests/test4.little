@@ -13,12 +13,13 @@ PROGRAM BigId BEGIN
         total := 1;
         e := b+1;
         IF ( b = 0 ) THEN
-            RETURN 0;
+            RETURN 1;
         ELSE
             FOR(i := 1; i < e; i := i + 1)
                     total := total * a;
             ENDFOR
         ENDIF
+        RETURN total;
     END,
 
     FUNCTION VOID helloWorld() BEGIN
@@ -27,15 +28,15 @@ PROGRAM BigId BEGIN
     END,
 
     FUNCTION INT main () BEGIN
-        INT i, qnt;
+        INT i1, qnt;
         STRING intro := "Por favor digite um numero: ";
         STRING barraN := "\n";
 
         WRITE(barraN);
         WRITE(intro);
         READ(qnt);
-        FOR(i := 0; i < qnt; i := i + 1)
-            WRITE(i, barraN);
+        FOR(i1 := 0; i1 < qnt; i1 := i1 + 1)
+            WRITE(i1, barraN);
         ENDFOR
 
     END,

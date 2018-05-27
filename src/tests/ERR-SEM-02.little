@@ -1,0 +1,6 @@
+PROGRAM LittleId BEGIN
+    FUNCTION INT main () BEGIN
+        FLOAT o;
+        o := "OLA MUNDO";
+    END
+END

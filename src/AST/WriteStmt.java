@@ -35,9 +35,9 @@ public class WriteStmt extends Stmt{
         pw.print("printf(\"");
         for(int i = 0; i<(idlist.size()); i++){
             if ( typeList.get(i).getType().compareTo(Symbol.FLOAT.toString()) == 0 ) 
-                pw.print("%f");
+                pw.out.print("%f");
             else if ( typeList.get(i).getType().compareTo(Symbol.INT.toString()) == 0 ) 
-                pw.print("%d");
+                pw.out.print("%d");
             else
                 pw.out.print("%s");
         }

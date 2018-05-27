@@ -133,10 +133,12 @@ public class Lexer {
                 STRFLAG = true;
                 tokenPos++;
             }
-            while (Character.isLetter(input[tokenPos]) && !STRFLAG){
-                //concatena as letras em uma string
-                aux = aux.append(input[tokenPos]);
-                tokenPos++;
+            if(Character.isLetter(input[tokenPos]) && !STRFLAG){
+                while (Character.isLetterOrDigit(input[tokenPos])){
+                    //concatena as letras em uma string
+                    aux = aux.append(input[tokenPos]);
+                    tokenPos++;
+                }
             }
             
             while(input[tokenPos] != '\"' && input[tokenPos] != ';' && input[tokenPos] != '\0' && STRFLAG){

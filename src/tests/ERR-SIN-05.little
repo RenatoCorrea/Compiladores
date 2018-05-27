@@ -1,0 +1,6 @@
+PROGRAM LittleId BEGIN
+    FUNCTION INT main() BEGIN
+        INT a, b;
+        RETURN b;
+    END
+END

@@ -1,0 +1,6 @@
+PROGRAM LittleId BEGIN
+    FUNCTION INT ola() BEGIN
+        INT a;
+        INT a;
+    END
+END

@@ -1,0 +1,25 @@
+PROGRAM FunctionId Begin
+    FUNCTION INT soma (INT c, INT d) BEGIN
+        INT total;
+        total := c + d;
+        RETURN total;
+    END,
+
+    FUNCTION FLOAT avg (INT e, INT f) BEGIN
+        FLOAT media2;
+        media2 := soma(e, f)/2;
+        RETURN media2;
+    END,
+
+    FUNCTION INT main () BEGIN  -- Aqui não sei se está certo
+        INT a, b;
+        FLOAT media;
+        STRING init := "A media dos numeros ";
+        STRING g := " e ";
+
+        READ ( a, b );
+        media := avg(a, b);
+        WRITE(init, a, g, b, g, media); - Aqui tbm nao
+        RETURN 0;
+    END
+END

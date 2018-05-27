@@ -3,5 +3,6 @@ PROGRAM MediumId BEGIN
         STRING frase := "Eu tenho a força!";
         FLOAT media, raizQuadrada;
         INT i, count;
+        RETURN 0;
     END
 END

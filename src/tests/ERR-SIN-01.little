@@ -1,0 +1,7 @@
+PROGRAM LittleId BEGIN
+    FUNCTION INT main() BEGIN
+        STRING o := "OLA MUNDO"
+        WRITE(o);
+        RETURN 0;
+    END
+END
